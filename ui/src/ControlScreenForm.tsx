@@ -53,6 +53,8 @@ type FormData = {
   show_venue_announcements: boolean;
   show_sessions: boolean;
 
+  show_sponsors: boolean;
+
   intermission: boolean;
 
   message: {
@@ -77,6 +79,8 @@ function serverDataToFormData(input: ScreenControl): FormData {
       input.rotated_views.indexOf("venue_announcements") >= 0,
     show_sessions: input.rotated_views.indexOf("sessions") >= 0,
 
+    show_sponsors: input.show_sponsors,
+
     intermission: input.intermission,
     message: {
       heading: input.message?.heading ?? "",
@@ -98,6 +102,7 @@ function formDataToInput(
     ...existing,
     mode: form.mode,
     rotated_views,
+    show_sponsors: form.show_sponsors,
     intermission: form.intermission,
     message:
       form.mode === "message" || form.message.heading || form.message.footer
@@ -179,10 +184,6 @@ export const ControlScreenForm: React.FC<{
                     <FormLabel>Show venue announcements</FormLabel>
                     <Checkbox {...register("show_venue_announcements")} />
                   </FormControl>
-                  <FormControl>
-                    <FormLabel>Intermission (hide captions)</FormLabel>
-                    <Checkbox {...register("intermission")} />
-                  </FormControl>
                 </TabPanel>
 
                 <TabPanel>
@@ -197,11 +198,20 @@ export const ControlScreenForm: React.FC<{
                   </FormControl>
                 </TabPanel>
 
-                <TabPanel>
-                  <Text>There's no option for filler mode :)</Text>
-                </TabPanel>
+                <TabPanel></TabPanel>
               </TabPanels>
             </Tabs>
+
+            <FormControl>
+              <FormLabel>
+                Intermission mode (hide captions on subscreen)
+              </FormLabel>
+              <Checkbox {...register("intermission")} />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Show sponsor rotation</FormLabel>
+              <Checkbox {...register("show_sponsors")} />
+            </FormControl>
 
             <FormControl>
               <Button type="submit" colorScheme="teal" isLoading={isRequesting}>

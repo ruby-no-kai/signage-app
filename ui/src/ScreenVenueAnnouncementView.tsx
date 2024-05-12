@@ -12,7 +12,7 @@ export const ScreenVenueAnnouncementView: React.FC<{
 }> = ({ ann }) => {
   // XXX: dupe with ScreenAnnounceView Inner
   return (
-    <Flex w="45vw" h="100%" direction="column">
+    <Flex minW="45vw" w="100%" h="100%" direction="column">
       <Box css={{ "& svg": { height: "1.8vw", width: "auto" } }}>
         <Logo />
       </Box>

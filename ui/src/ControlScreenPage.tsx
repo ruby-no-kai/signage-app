@@ -118,6 +118,13 @@ const ScreenControlView: React.FC<{ screen: ScreenControl | undefined }> = ({
           </Tag>
         </Text>
       ) : null}
+      {!screen.show_sponsors ? (
+        <Text>
+          <Tag variant="solid" colorScheme="red">
+            Hide sponsors
+          </Tag>
+        </Text>
+      ) : null}
       {/* screen.lightning_timer ? (
         <Text>
           <Tag variant="solid" colorScheme="teal">

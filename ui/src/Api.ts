@@ -79,12 +79,9 @@ export type ScreenControlFull = {
   track: TrackSlug;
   mode: ScreenMode;
 
-  // show_sessions: boolean;
-  // TODO: show_sponsors: boolean;
   rotated_views: ScreenViewKind[];
-  // TODO: rotation_with_hero: boolean;
-  // TODO: rotation_with_message: boolean;
-  //
+
+  show_sponsors: boolean;
   intermission: boolean;
   lightning_timer?: LightningTimer;
 
@@ -121,6 +118,7 @@ function dynamodbScreenControl(
         i.S ? [guardScreenViewKind(i.S)] : []
     ) ?? ["hero", "venue_announcements", "sessions"],
 
+    show_sponsors: possibleItem?.show_sponsors?.BOOL ?? true,
     intermission: possibleItem?.intermission?.BOOL ?? false,
 
     message: ((map) =>
@@ -601,11 +599,12 @@ export const Api = {
         TableName: aws.config.dynamodb_table_name,
         Key: { pk: { S: pk }, sk: { S: sk } },
         UpdateExpression:
-          "set #track = :track, #mode = :mode, #rotated_views = :rotated_views, #intermission = :intermission, #message = :message, #lightning_timer = :lightning_timer, #updated_at = :updated_at",
+          "set #track = :track, #mode = :mode, #rotated_views = :rotated_views, #show_sponsors = :show_sponsors, #intermission = :intermission, #message = :message, #lightning_timer = :lightning_timer, #updated_at = :updated_at",
         ExpressionAttributeNames: {
           "#track": "track",
           "#mode": "mode",
           "#rotated_views": "rotated_views",
+          "#show_sponsors": "show_sponsors",
           "#intermission": "intermission",
           "#message": "message",
           "#lightning_timer": "lightning_timer",
@@ -619,6 +618,7 @@ export const Api = {
               S: v,
             })),
           },
+          ":show_sponsors": { BOOL: value.show_sponsors },
           ":intermission": { BOOL: value.intermission },
           ":message": value.message
             ? {

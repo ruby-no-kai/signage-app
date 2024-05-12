@@ -39,16 +39,18 @@ export const IntermissionScreenInner: React.FC = () => {
   console.log("IntermissionScreenInner/screen", screen);
   return (
     <Flex h="100%" w="100%" justify="space-between" direction="row">
-      <Box h="100%">
+      <Box h="100%" w="100%">
         {screen.mode === "message" && screen.message ? (
           <ScreenMessageView screen={screen} />
         ) : null}
         {screen.mode === "rotation" ? <ScreenRotationView /> : null}
         {screen.mode === "filler" ? <ScreenHeroFiller /> : null}
       </Box>
-      <Box h="100%">
-        <ScreenSponsorRotation />
-      </Box>
+      {screen.show_sponsors ? (
+        <Box h="100%">
+          <ScreenSponsorRotation />
+        </Box>
+      ) : null}
     </Flex>
   );
 };
