@@ -47,6 +47,16 @@ export type Config = {
 };
 
 export type ScreenMode = "rotation" | "filler" | "message";
+const SCREEN_MODES_MAP: Map<string, true> = new Map(
+  ["rotation", "filler", "message"].map((k) => [k, true])
+);
+function isScreenMode(from: string): from is ScreenMode {
+  return SCREEN_MODES_MAP.has(from);
+}
+export function guardScreenMode(from: string): ScreenMode {
+  return isScreenMode(from) ? from : "filler";
+}
+
 export type ScreenControlFull = {
   track: TrackSlug;
   mode: ScreenMode;
@@ -80,11 +90,7 @@ function dynamodbScreenControl(
 ): ScreenControlFull {
   const retval = {
     track: (possibleItem?.track?.S ?? track ?? "?") as TrackSlug,
-    mode: ((x: string): ScreenMode => {
-      return ({ rotation: "rotation", filler: "filler", message: "message" }[
-        x
-      ] ?? "rotation") as ScreenMode; // FIXME:
-    })(possibleItem?.mode?.S ?? "rotation"),
+    mode: guardScreenMode(possibleItem?.mode?.S ?? ""),
     show_sessions: possibleItem?.show_sessions?.BOOL ?? true,
     intermission: possibleItem?.intermission?.BOOL ?? false,
     message: ((map) =>
@@ -213,7 +219,17 @@ function dynamodbConferenceSponsorship(
   };
 }
 
-export type KioskKind = "subscreen" | "hallway" | "track" | "chat";
+export type KioskKind = "subscreen" | "hallway" | "track" | "chat" | "unknown";
+const KIOSK_KINDS_MAP: Map<string, true> = new Map(
+  ["subscreen", "hallway", "track", "chat"].map((k) => [k, true])
+);
+function isKioskKind(from: string): from is KioskKind {
+  return KIOSK_KINDS_MAP.has(from);
+}
+export function guardKioskKind(from: string): KioskKind {
+  return isKioskKind(from) ? from : "unknown";
+}
+
 export type VenueAnnouncement = {
   id: string;
   tenant: string;
@@ -241,7 +257,7 @@ function dynamodbVenueAnnouncement(
     url: possibleItem.url?.S ?? undefined,
     applicable_kiosks:
       possibleItem.applicable_kiosks?.L?.flatMap(
-        (i: AttributeValue): KioskKind[] => (i.S ? [i.S] : []) as KioskKind[]
+        (i: AttributeValue): KioskKind[] => (i.S ? [guardKioskKind(i.S)] : [])
       ) ?? undefined,
     updated_at: Number(possibleItem.updated_at?.N ?? 0),
   };
