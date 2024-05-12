@@ -25,14 +25,16 @@ sessions = []
 schedule.each do |day, day_data| # day = "may15"
   #day_ts = Time.parse("#{day.capitalize.sub(/\d/, ' ')} #{Time.now.year} 00:00:00 +09:00")
   day_data.fetch('events', []).each do |event|
-    begin_ts = Time.parse("#{day.capitalize.sub(/\d/, ' ')} #{Time.now.year} #{event.fetch('begin')}:00 +09:00")
-    end_ts = Time.parse("#{day.capitalize.sub(/\d/, ' ')} #{Time.now.year} #{event.fetch('end')}:00 +09:00")
+    begin_ts = Time.parse("#{day.capitalize.sub(/\d/, ' \0')} #{Time.now.year} #{event.fetch('begin')}:00 +09:00")
+    end_ts = Time.parse("#{day.capitalize.sub(/\d/, ' \0')} #{Time.now.year} #{event.fetch('end')}:00 +09:00")
 
     event.fetch('talks', {}).each do |hall, talk_slug|
       track = TRACKS.fetch(hall)
       presentation = presentations.fetch(talk_slug)
 
+      p [ begin_ts, end_ts]
       sessions.push(
+        slug: talk_slug,
         starts_at: begin_ts.to_i,
         ends_at: end_ts.to_i,
         track:,

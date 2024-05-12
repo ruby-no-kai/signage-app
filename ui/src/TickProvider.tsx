@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import type { Dayjs } from "dayjs";
+import { useSearchParams } from "react-router-dom";
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -16,12 +17,18 @@ const TickContext = createContext<TickContextData>({ tick: dayjs() });
 export const TickProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [tick, setTick] = React.useState(dayjs());
+  const [searchParams] = useSearchParams();
 
-  useState(() => {
+  const staticTickMaybe = searchParams.get("tick");
+  const staticTickNum = staticTickMaybe ? Number(staticTickMaybe) : undefined;
+  const staticTick = staticTickNum ? dayjs.unix(staticTickNum) : undefined;
+  const [tick, setTick] = React.useState(staticTick ?? dayjs());
+
+  useEffect(() => {
+    if (staticTick) return;
     const timer = setInterval(() => setTick(dayjs()), 500);
     return () => clearInterval(timer);
-  });
+  }, [staticTick]);
 
   return (
     <>

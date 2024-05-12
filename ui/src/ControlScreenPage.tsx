@@ -104,7 +104,14 @@ const ScreenControlView: React.FC<{ screen: ScreenControl | undefined }> = ({
           </Tag>
         </Text>
       ) : null}
-      {!screen.show_sessions ? (
+      {screen.rotated_views.indexOf("venue_announcements") < 0 ? (
+        <Text>
+          <Tag variant="solid" colorScheme="teal">
+            Hide venue anns
+          </Tag>
+        </Text>
+      ) : null}
+      {screen.rotated_views.indexOf("sessions") < 0 ? (
         <Text>
           <Tag variant="solid" colorScheme="teal">
             Hide schedule information

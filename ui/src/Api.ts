@@ -60,14 +60,31 @@ export function guardScreenMode(from: string): ScreenMode {
   return isScreenMode(from) ? from : "filler";
 }
 
+export type ScreenViewKind =
+  | "hero"
+  | "venue_announcements"
+  | "sessions"
+  | "unknown";
+const SCREEN_VIEW_KINDS: Map<string, true> = new Map(
+  ["hero", "venue_announcements", "sessions"].map((k) => [k, true])
+);
+function isScreenViewKind(from: string): from is ScreenViewKind {
+  return SCREEN_VIEW_KINDS.has(from);
+}
+export function guardScreenViewKind(from: string): ScreenViewKind {
+  return isScreenViewKind(from) ? from : "unknown";
+}
+
 export type ScreenControlFull = {
   track: TrackSlug;
   mode: ScreenMode;
 
-  show_sessions: boolean;
+  // show_sessions: boolean;
   // TODO: show_sponsors: boolean;
+  rotated_views: ScreenViewKind[];
   // TODO: rotation_with_hero: boolean;
   // TODO: rotation_with_message: boolean;
+  //
   intermission: boolean;
   lightning_timer?: LightningTimer;
 
@@ -98,8 +115,14 @@ function dynamodbScreenControl(
   const retval = {
     track: (possibleItem?.track?.S ?? track ?? "?") as TrackSlug,
     mode: guardScreenMode(possibleItem?.mode?.S ?? ""),
-    show_sessions: possibleItem?.show_sessions?.BOOL ?? true,
+
+    rotated_views: possibleItem?.rotated_views?.L?.flatMap(
+      (i: AttributeValue): ScreenViewKind[] =>
+        i.S ? [guardScreenViewKind(i.S)] : []
+    ) ?? ["hero", "venue_announcements", "sessions"],
+
     intermission: possibleItem?.intermission?.BOOL ?? false,
+
     message: ((map) =>
       map && {
         heading: map?.heading?.S ?? undefined,
@@ -152,7 +175,7 @@ function dynamodbConferenceSession(
   possibleItem: Record<string, AttributeValue>
 ): ConferenceSession {
   return {
-    slug: possibleItem.id?.S ?? "",
+    slug: possibleItem.slug?.S ?? "",
     track: possibleItem.track?.S ?? "",
     hall: possibleItem.hall?.S ?? "",
     starts_at: Number(possibleItem.starts_at?.N ?? 0),
@@ -578,11 +601,11 @@ export const Api = {
         TableName: aws.config.dynamodb_table_name,
         Key: { pk: { S: pk }, sk: { S: sk } },
         UpdateExpression:
-          "set #track = :track, #mode = :mode, #show_sessions = :show_sessions, #intermission = :intermission, #message = :message, #lightning_timer = :lightning_timer, #updated_at = :updated_at",
+          "set #track = :track, #mode = :mode, #rotated_views = :rotated_views, #intermission = :intermission, #message = :message, #lightning_timer = :lightning_timer, #updated_at = :updated_at",
         ExpressionAttributeNames: {
           "#track": "track",
           "#mode": "mode",
-          "#show_sessions": "show_sessions",
+          "#rotated_views": "rotated_views",
           "#intermission": "intermission",
           "#message": "message",
           "#lightning_timer": "lightning_timer",
@@ -591,7 +614,11 @@ export const Api = {
         ExpressionAttributeValues: {
           ":track": { S: value.track },
           ":mode": { S: value.mode },
-          ":show_sessions": { BOOL: value.show_sessions },
+          ":rotated_views": {
+            L: value.rotated_views.map((v) => ({
+              S: v,
+            })),
+          },
           ":intermission": { BOOL: value.intermission },
           ":message": value.message
             ? {

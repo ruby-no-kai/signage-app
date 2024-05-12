@@ -36,14 +36,23 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 
-import { Api, ScreenControl, ScreenControlFull, ScreenMode } from "./Api";
+import {
+  Api,
+  ScreenControl,
+  ScreenControlFull,
+  ScreenMode,
+  ScreenViewKind,
+} from "./Api";
 import { ErrorAlert, errorToToast } from "./ErrorAlert";
 import { useApiContext } from "./ApiContext";
 
 type FormData = {
   mode: ScreenMode;
 
+  show_hero: boolean;
+  show_venue_announcements: boolean;
   show_sessions: boolean;
+
   intermission: boolean;
 
   message: {
@@ -62,7 +71,12 @@ type FormData = {
 function serverDataToFormData(input: ScreenControl): FormData {
   return {
     mode: input.mode,
-    show_sessions: input.show_sessions,
+
+    show_hero: input.rotated_views.indexOf("hero") >= 0,
+    show_venue_announcements:
+      input.rotated_views.indexOf("venue_announcements") >= 0,
+    show_sessions: input.rotated_views.indexOf("sessions") >= 0,
+
     intermission: input.intermission,
     message: {
       heading: input.message?.heading ?? "",
@@ -75,10 +89,15 @@ function formDataToInput(
   existing: ScreenControlFull,
   form: FormData
 ): ScreenControlFull {
+  const rotated_views: ScreenViewKind[] = [];
+  if (form.show_hero) rotated_views.push("hero");
+  if (form.show_venue_announcements) rotated_views.push("venue_announcements");
+  if (form.show_sessions) rotated_views.push("sessions");
+
   return {
     ...existing,
     mode: form.mode,
-    show_sessions: form.show_sessions,
+    rotated_views,
     intermission: form.intermission,
     message:
       form.mode === "message" || form.message.heading || form.message.footer
@@ -149,8 +168,16 @@ export const ControlScreenForm: React.FC<{
               <TabPanels>
                 <TabPanel>
                   <FormControl>
+                    <FormLabel>Show hero filler</FormLabel>
+                    <Checkbox {...register("show_hero")} />
+                  </FormControl>
+                  <FormControl>
                     <FormLabel>Show sessions</FormLabel>
                     <Checkbox {...register("show_sessions")} />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Show venue announcements</FormLabel>
+                    <Checkbox {...register("show_venue_announcements")} />
                   </FormControl>
                   <FormControl>
                     <FormLabel>Intermission (hide captions)</FormLabel>
