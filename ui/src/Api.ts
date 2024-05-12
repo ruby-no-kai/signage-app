@@ -411,16 +411,20 @@ export const Api = {
       async () => {
         if (!aws) throw "aws is null";
         const key = `${aws.config.tenant}::sessions`;
-        const resp = await aws.dynamodb.send(
-          new QueryCommand({
+        const paginator = paginateQuery(
+          { client: aws.dynamodb },
+          {
             TableName: aws.config.dynamodb_table_name,
             ExpressionAttributeValues: {
               ":pk": { S: key },
             },
             KeyConditionExpression: "pk = :pk",
-          })
+          }
         );
-        const possibleItems = resp.Items || [];
+        const possibleItems: Record<string, AttributeValue>[] = [];
+        for await (const page of paginator) {
+          possibleItems.push(...(page.Items ?? []));
+        }
         const allSessions = possibleItems.map((i) =>
           dynamodbConferenceSession(i)
         );
@@ -443,16 +447,20 @@ export const Api = {
       async () => {
         if (!aws) throw "aws is null";
         const key = `${aws.config.tenant}::sponsors`;
-        const resp = await aws.dynamodb.send(
-          new QueryCommand({
+        const paginator = paginateQuery(
+          { client: aws.dynamodb },
+          {
             TableName: aws.config.dynamodb_table_name,
             ExpressionAttributeValues: {
               ":pk": { S: key },
             },
             KeyConditionExpression: "pk = :pk",
-          })
+          }
         );
-        const possibleItems = resp.Items || [];
+        const possibleItems: Record<string, AttributeValue>[] = [];
+        for await (const page of paginator) {
+          possibleItems.push(...(page.Items ?? []));
+        }
         return possibleItems
           .map((i) => dynamodbConferenceSponsorship(i))
           .sort((a, b) => a.order_index - b.order_index);
