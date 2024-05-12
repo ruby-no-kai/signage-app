@@ -89,7 +89,7 @@ data "aws_iam_policy_document" "unauthenticated-iot" {
     effect  = "Allow"
     actions = ["iot:Publish"]
     resources = [
-      "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/downlink/kiosks/$${aws:PrincipalTag/RkSignageUserSub}/*",
+      "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/downlink/kiosk=$${aws:PrincipalTag/RkSignageUserSub}/*",
     ]
   }
   statement {
@@ -107,7 +107,7 @@ data "aws_iam_policy_document" "unauthenticated-iot" {
       "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/uplink/all/updates",
       "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/uplink/all/captions/*",
       "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/uplink/all/chats/*",
-      "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/uplink/kiosks/$${aws:PrincipalTag/RkSignageUserSub}/*",
+      "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/uplink/kiosk=$${aws:PrincipalTag/RkSignageUserSub}/*",
     ]
   }
 }
