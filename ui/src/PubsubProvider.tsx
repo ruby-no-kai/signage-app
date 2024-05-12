@@ -115,7 +115,7 @@ export const PubsubSubscription: React.FC<{
         console.log("mqtt5 subscription", v)
       );
     // TODO; unsubscribe
-  }, [pubsub, packet]);
+  }, [pubsub, JSON.stringify(packet)]);
   return <></>;
 };
 
@@ -152,7 +152,8 @@ function tryMessageFromEvent(
 type MessageSubscriber = {
   id: number;
   active: boolean;
-  test: RegExp;
+  test?: RegExp;
+  topic?: string;
   fn: (message: PubsubMessage, event: mqtt5.MessageReceivedEvent) => boolean; // weakCallback
 };
 class SubscriberBag {
@@ -162,19 +163,21 @@ class SubscriberBag {
     this.list = [];
     this.nextId = 0;
   }
-  subscribe(
-    test: RegExp,
-    callback: (
+  subscribe(options: {
+    test?: RegExp;
+    topic?: string;
+    onMessage: (
       message: PubsubMessage,
       event: mqtt5.MessageReceivedEvent
-    ) => void
-  ) {
-    const fn = makeWeakCallback(callback);
+    ) => void;
+  }) {
+    const fn = makeWeakCallback(options.onMessage);
     this.nextId += 1;
     const subscription = {
       id: this.nextId,
       active: true,
-      test,
+      test: options.test,
+      topic: options.topic,
       fn,
     };
     this.list.push(subscription);
@@ -186,10 +189,16 @@ class SubscriberBag {
   }
   deliverToMessageHandler(event: mqtt5.MessageReceivedEvent) {
     const message = tryMessageFromEvent(event);
-    if (!message) return;
+    console.log("mqtt5/SubscriberBag/Message", message.topic, message.payload);
+    if (!message) {
+      console.warn("mqtt5/SubscriberBag/Message/Invalid", event);
+      return;
+    }
     const newList = this.list.filter((sub) => {
       if (!sub.active) return false;
-      if (!sub.test.test(event.message.topicName)) return true;
+      if (sub.test && !sub.test.test(event.message.topicName)) return true;
+      if (sub.topic !== undefined && sub.topic !== event.message.topicName)
+        return true;
       return sub.fn(message, event); // weakCallback return false for dead functions
     });
     this.list = newList;
@@ -197,17 +206,18 @@ class SubscriberBag {
 }
 
 export const PubsubMessageHandler: React.FC<{
-  test: RegExp;
+  test?: RegExp;
+  topic?: string;
   onMessage: (
     message: PubsubMessage,
     event: mqtt5.MessageReceivedEvent
   ) => void;
-}> = ({ test, onMessage }) => {
+}> = ({ test, topic, onMessage }) => {
   const ctx = usePubsubLocal();
   useEffect(() => {
     if (ctx.state !== "ready") return;
-    return ctx.subscriberBag.subscribe(test, onMessage);
-  }, [ctx, test, onMessage]);
+    return ctx.subscriberBag.subscribe({ test, topic, onMessage });
+  }, [ctx, test, topic, onMessage]);
   return <></>;
 };
 
@@ -295,9 +305,9 @@ function createMqttClient(
   });
 
   client.on("messageReceived", (event: mqtt5.MessageReceivedEvent): void => {
-    console.log("mqtt5 message event", event);
+    console.debug("mqtt5 message event", event);
     if (event.message.payload) {
-      console.log(
+      console.debug(
         "mqtt5 message payload",
         toUtf8(event.message.payload as Buffer)
       );

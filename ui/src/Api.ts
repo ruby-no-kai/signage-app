@@ -15,7 +15,10 @@ import { ulid } from "ulid";
 import { mqtt5 } from "aws-crt/dist.browser/browser";
 import { PubsubMessageHeader, PubsubMessagePayload } from "./PubsubProvider";
 
-export type ApiPubsubMessage = BroadcastMutateMessage | PingMessage;
+export type ApiPubsubMessage =
+  | BroadcastMutateMessage
+  | CaptionMessage
+  | PingMessage;
 
 export type PingMessage = PubsubMessageHeader & { kind: "ping" };
 
@@ -374,6 +377,17 @@ function dynamodbKiosk(possibleItem: Record<string, AttributeValue>): Kiosk {
     invalid,
   };
 }
+
+export type CaptionMessage = PubsubMessageHeader & {
+  kind: "Caption";
+  track: TrackSlug;
+  pid: number;
+  sequence_id: number;
+  round: number;
+  result_id: string;
+  is_partial: boolean;
+  transcript: string;
+};
 
 export type BroadcastMutateMessage = PubsubMessageHeader & {
   kind: "BroadcastMutate";

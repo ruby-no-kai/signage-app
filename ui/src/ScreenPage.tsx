@@ -1,29 +1,19 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React from "react";
 
-import dayjs from "dayjs";
-
-import {
-  HStack,
-  VStack,
-  Heading,
-  Flex,
-  Box,
-  Container,
-  Image,
-  Text,
-} from "@chakra-ui/react";
+import { Flex, Box } from "@chakra-ui/react";
 import { AspectRatio } from "@chakra-ui/react";
 
 import Api from "./Api";
+import { useKioskContext } from "./KioskProvider";
+import { useApiContext } from "./ApiContext";
+import { TickProvider } from "./TickProvider";
+
 import { Colors } from "./theme";
 
 import { ScreenSponsorRotation } from "./ScreenSponsorRotation";
-import { useKioskContext } from "./KioskProvider";
-import { useApiContext } from "./ApiContext";
 import { ScreenHeroFiller } from "./ScreenHeroFiller";
 import { ScreenRotationView } from "./ScreenRotationView";
 import ScreenMessageView from "./ScreenMessageView";
-import { TickProvider } from "./TickProvider";
 
 export const ScreenPage: React.FC = () => {
   return (

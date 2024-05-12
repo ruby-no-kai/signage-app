@@ -30,6 +30,7 @@ import {
   useKioskPropsFromSearch,
 } from "./KioskProvider";
 import ControlLightningTimerPage from "./ControlLightningTimerPage";
+import SubScreenPage from "./SubScreenPage";
 
 const ControlLayout: React.FC = () => {
   const toast = useToast();
@@ -87,7 +88,7 @@ export const App: React.FC = () => {
 
               <Route element={<KioskLayout />}>
                 <Route path="screen" element={<ScreenPage />} />
-                {/*<Route path="/subscreen" element={<SubScreen />} />*/}
+                <Route path="/subscreen" element={<SubScreenPage />} />
               </Route>
               <Route
                 element={

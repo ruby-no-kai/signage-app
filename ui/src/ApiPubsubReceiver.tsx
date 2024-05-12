@@ -11,9 +11,10 @@ export const ApiPubsubReceiver: React.FC = () => {
     (message, event) => {
       const payload: ApiPubsubMessage = message.payload;
       switch (payload.kind) {
-        case "BroadcastMutate":
+        case "BroadcastMutate": {
           handleBroadcastMutate(swr, payload);
           break;
+        }
       }
     },
     [swr, ctx]
