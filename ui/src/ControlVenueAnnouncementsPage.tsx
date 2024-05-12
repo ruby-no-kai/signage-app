@@ -209,6 +209,8 @@ type KioskKindTicks = {
   only_track: boolean;
 };
 
+// FIXME: prerendered form doesn't change its value after background mutation
+
 const ControlVenueAnnouncementForm: React.FC<{
   target?: VenueAnnouncement;
   disclosureProps?: UseDisclosureReturn;
