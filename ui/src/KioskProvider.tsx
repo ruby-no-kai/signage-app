@@ -1,7 +1,8 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { KioskLogin } from "./KioskLogin";
 import { KioskHeartbeat } from "./KioskHeartbeat";
-import { KioskKind, TrackSlug } from "./Api";
+import { KioskKind, TrackSlug, guardKioskKind } from "./Api";
+import { useSearchParams } from "react-router-dom";
 
 export type KioskContextData = {
   track: TrackSlug;
@@ -17,6 +18,9 @@ export const KioskProvider: React.FC<
     children: React.ReactNode;
   } & KioskContextData
 > = ({ children, ...props }) => {
+  useEffect(() => {
+    console.log("KioskProvider/kioskProps", props);
+  }, [props]);
   return (
     <KioskContext.Provider value={props}>
       <KioskLogin />
@@ -30,4 +34,12 @@ export function useKioskContext() {
   const ctx = useContext(KioskContext);
   if (!ctx) throw "useKioskContext() outside of KioskProvider";
   return ctx;
+}
+
+export function useKioskPropsFromSearch(): KioskContextData {
+  const [searchParams] = useSearchParams();
+  return {
+    track: searchParams.get("track") || "_unknown",
+    kind: guardKioskKind(searchParams.get("kind")),
+  };
 }

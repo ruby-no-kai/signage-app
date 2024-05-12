@@ -23,6 +23,12 @@ import { SWRConfig } from "swr";
 import { errorToToast } from "./ErrorAlert";
 import { PubsubProvider } from "./PubsubProvider";
 import { ApiPubsubReceiver } from "./ApiPubsubReceiver";
+import { ScreenPage } from "./ScreenPage";
+import {
+  KioskContextData,
+  KioskProvider,
+  useKioskPropsFromSearch,
+} from "./KioskProvider";
 
 const ControlLayout: React.FC = () => {
   const toast = useToast();
@@ -46,6 +52,25 @@ const ControlLayout: React.FC = () => {
   );
 };
 
+const KioskLayout: React.FC<{ props?: KioskContextData }> = ({ props }) => {
+  const toast = useToast();
+  const swrOnError = (error: Error, key: string) => {
+    console.error(error, key);
+    toast({ ...errorToToast(error), duration: 2000 });
+  };
+  const searchProps = useKioskPropsFromSearch();
+  const kioskProps = props ?? searchProps;
+  return (
+    <>
+      <SWRConfig value={{ onError: swrOnError }}>
+        <KioskProvider {...kioskProps}>
+          <Outlet />
+        </KioskProvider>
+      </SWRConfig>
+    </>
+  );
+};
+
 export const App: React.FC = () => {
   return (
     <ChakraProvider theme={theme}>
@@ -59,6 +84,18 @@ export const App: React.FC = () => {
               <Route path="/test" element={<TestPage />} />
               <Route path="/oauth2callback" element={<OAuthCallbackPage />} />
 
+              <Route element={<KioskLayout />}>
+                <Route path="screen" element={<ScreenPage />} />
+                {/*<Route path="/subscreen" element={<SubScreen />} />*/}
+              </Route>
+              <Route
+                element={
+                  <KioskLayout props={{ track: "_hallway", kind: "hallway" }} />
+                }
+              >
+                <Route path="hallway" element={<ScreenPage />} />
+              </Route>
+
               <Route path="/control" element={<ControlLayout />}>
                 <Route
                   path="announcements"
@@ -66,11 +103,7 @@ export const App: React.FC = () => {
                 />
                 <Route path="screens" element={<ControlScreenPage />} />
               </Route>
-
               {/* 
-          <Route path="/screen" element={<IntermissionScreen />} />
-          <Route path="/tracks/:slug" element={<IntermissionScreen />} />
-          <Route path="/subscreen/:slug" element={<SubScreen />} />
 
             <Route index element={<ControlRoot />} />
             <Route path="kiosks" element={<ControlKiosksPage />} />
