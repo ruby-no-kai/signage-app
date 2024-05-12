@@ -127,11 +127,10 @@ function useRecentSessions() {
       const firstUnfinishedSession = trackSessions.find(
         (s) => tick.unix() <= s.ends_at
       );
-      console.log(trackSessions);
       return [track, firstUnfinishedSession];
     })
   );
-  console.log("useRecentSessions", retval);
+  //console.log("useRecentSessions", retval);
   return retval;
 }
 

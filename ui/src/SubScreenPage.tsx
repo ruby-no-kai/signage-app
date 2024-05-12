@@ -26,6 +26,7 @@ import { useLightningTimer } from "./LightningTimer";
 
 import { SubScreenCaptionView } from "./SubScreenCaptionView";
 import { SubScreenLightningTimerView } from "./SubScreenLightningTimerView";
+import { SubScreenAnnouncementsView } from "./SubScreenAnnouncementsView";
 
 export const SubScreenPage: React.FC = () => {
   return (
@@ -59,9 +60,9 @@ export const SubScreenInner: React.FC = () => {
   return (
     <Flex h="100%" w="100%" justify="space-between" direction="column">
       <Box w="100%" h="30%" overflow="hidden">
-        {infoMode === "announcement"
-          ? /*<SubScreenAnnouncementsView track={track} />*/ null
-          : null}
+        {infoMode === "announcement" ? (
+          <SubScreenAnnouncementsView track={track} />
+        ) : null}
         {infoMode === "lightning_timer" && timer ? (
           <SubScreenLightningTimerView timer={timer} />
         ) : null}
