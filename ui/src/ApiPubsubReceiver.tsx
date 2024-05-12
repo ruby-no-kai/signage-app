@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { PubsubMessageHandler } from "./PubsubProvider";
 import { ApiPubsubMessage, BroadcastMutateMessage } from "./Api";
 
-export const ApiPubsubReceiver: React.FC<void> = () => {
+export const ApiPubsubReceiver: React.FC = () => {
   const swr = useSWRConfig();
   const ctx = useApiContext(false);
   const cb = useCallback(
