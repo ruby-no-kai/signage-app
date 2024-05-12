@@ -15,6 +15,7 @@ import {
   ScreenControl,
   ScreenControlFull,
   ScreenControlMessage,
+  guardScreenMode,
 } from "./Api";
 //import ControlScreenForm from "./ControlScreenForm";
 import { useApiContext } from "./ApiContext";
@@ -74,7 +75,7 @@ const ScreenControlView: React.FC<{ screen: ScreenControl | undefined }> = ({
       rotation: "Rotation",
       message: "Message",
       filler: "Filler",
-    }[screen.mode] ?? "unknown";
+    }[guardScreenMode(screen.mode)] ?? "unknown";
 
   return (
     <>

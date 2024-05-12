@@ -29,6 +29,7 @@ import {
   KioskProvider,
   useKioskPropsFromSearch,
 } from "./KioskProvider";
+import ControlLightningTimerPage from "./ControlLightningTimerPage";
 
 const ControlLayout: React.FC = () => {
   const toast = useToast();
@@ -102,6 +103,7 @@ export const App: React.FC = () => {
                   element={<ControlVenueAnnouncementsPage />}
                 />
                 <Route path="screens" element={<ControlScreenPage />} />
+                <Route path="timers" element={<ControlLightningTimerPage />} />
               </Route>
               {/* 
 

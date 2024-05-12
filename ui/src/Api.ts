@@ -62,6 +62,9 @@ export type ScreenControlFull = {
   mode: ScreenMode;
 
   show_sessions: boolean;
+  // TODO: show_sponsors: boolean;
+  // TODO: rotation_with_hero: boolean;
+  // TODO: rotation_with_message: boolean;
   intermission: boolean;
   lightning_timer?: LightningTimer;
 
@@ -69,9 +72,8 @@ export type ScreenControlFull = {
 
   updated_at: number;
 };
-export type ScreenControl =
-  | ScreenControlFull
-  | (ScreenControlFull & { mode: "message"; message: ScreenControlMessage });
+export type ScreenControl = ScreenControlFull;
+//| (ScreenControlFull & { mode: "message"; message: ScreenControlMessage });
 
 export type ScreenControlMessage = {
   heading?: string;
@@ -79,6 +81,7 @@ export type ScreenControlMessage = {
   // TODO: next_schedule?:
 };
 export type LightningTimer = {
+  enabled: boolean;
   starts_at: number;
   ends_at: number;
   expires_at: number;
@@ -99,11 +102,14 @@ function dynamodbScreenControl(
         footer: map?.footer?.S ?? undefined,
       })(possibleItem?.message?.M ?? undefined),
     lightning_timer: ((map) =>
-      map && {
-        starts_at: Number(map?.starts_at?.N ?? 0),
-        ends_at: Number(map?.ends_at?.N ?? 0),
-        expires_at: Number(map?.expires_at?.N ?? 0),
-      })(possibleItem?.lightning_timer?.M),
+      map
+        ? {
+            enabled: map?.enabled?.BOOL ?? true,
+            starts_at: Number(map?.starts_at?.N ?? 0),
+            ends_at: Number(map?.ends_at?.N ?? 0),
+            expires_at: Number(map?.expires_at?.N ?? 0),
+          }
+        : undefined)(possibleItem?.lightning_timer?.M),
     updated_at: Number(possibleItem?.updated_at?.N ?? 0),
   };
   return retval;
@@ -586,6 +592,7 @@ export const Api = {
           ":lightning_timer": value.lightning_timer
             ? {
                 M: {
+                  enabled: { BOOL: value.lightning_timer.enabled },
                   starts_at: { N: value.lightning_timer.starts_at.toString() },
                   ends_at: { N: value.lightning_timer.ends_at.toString() },
                   expires_at: {
