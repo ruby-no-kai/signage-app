@@ -23,16 +23,19 @@ import { useApiContext } from "./ApiContext";
 import { ScreenHeroFiller } from "./ScreenHeroFiller";
 import { ScreenRotationView } from "./ScreenRotationView";
 import ScreenMessageView from "./ScreenMessageView";
+import { TickProvider } from "./TickProvider";
 
 export const ScreenPage: React.FC = () => {
   return (
-    <Box w="100vw" h="auto">
-      <AspectRatio ratio={16 / 9}>
-        <Box bgColor={Colors.bg} bgSize="contain" w="100%" h="100%" p="2.5vw">
-          <IntermissionScreenInner />
-        </Box>
-      </AspectRatio>
-    </Box>
+    <TickProvider>
+      <Box w="100vw" h="auto">
+        <AspectRatio ratio={16 / 9}>
+          <Box bgColor={Colors.bg} bgSize="contain" w="100%" h="100%" p="2.5vw">
+            <IntermissionScreenInner />
+          </Box>
+        </AspectRatio>
+      </Box>
+    </TickProvider>
   );
 };
 

@@ -7,6 +7,7 @@ import { Center } from "@chakra-ui/react";
 import { Api, ConferenceSponsorship, ConferenceSponsorshipPlan } from "./Api";
 import { Fonts } from "./theme";
 import { useApiContext } from "./ApiContext";
+import { useTick } from "./TickProvider";
 
 type RotationPage = {
   plan: ConferenceSponsorshipPlan;
@@ -124,21 +125,22 @@ function useSponsorLogoPages() {
   return pages;
 }
 
+const ROTATE_INTERVAL = 9;
 function useRotatingPage(pages: RotationPage[] | undefined) {
-  const [tick, setTick] = useState(dayjs().unix());
+  const tick = useTick();
   const [page, setPage] = useState<RotationPage | null>(null);
+  const [index, setIndex] = useState<number | null>(null);
   React.useEffect(() => {
     if (!pages) return;
     if (!pages[0]) return;
-    setPage(pages[0]);
 
-    let pageNum = 0;
-    const interval = setInterval(() => {
-      pageNum = (pageNum + 1) % pages.length;
-      setPage(pages[pageNum]);
-    }, 10 * 1000);
+    const now = tick.unix();
+    const idx = Math.floor(now / ROTATE_INTERVAL) % pages.length;
 
-    return () => clearInterval(interval);
-  }, [pages]);
+    if (idx !== index) {
+      setIndex(idx);
+      setPage(pages[idx]);
+    }
+  }, [pages, index, tick, setIndex, setPage]);
   return page;
 }

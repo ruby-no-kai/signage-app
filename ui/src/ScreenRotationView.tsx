@@ -5,22 +5,14 @@ import Api from "./Api";
 import { ScreenHeroFiller } from "./ScreenHeroFiller";
 import { ScreenVenueAnnouncementView } from "./ScreenVenueAnnouncementView";
 import { useKioskContext } from "./KioskProvider";
+import { useTick } from "./TickProvider";
 
-const TICK_INTERVAL = 1;
 const ROTATE_INTERVAL = 12;
 export const ScreenRotationView: React.FC = () => {
   const kioskProps = useKioskContext();
   const apictx = useApiContext(false);
-  const [tick, setTick] = useState(dayjs().unix());
+  const tick = useTick();
   const { data: venueAnnouncements } = Api.useVenueAnnouncements(apictx);
-
-  useEffect(() => {
-    setTick(dayjs().unix());
-    const timer = setInterval(() => {
-      setTick(dayjs().unix());
-    }, TICK_INTERVAL * 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const entries = useMemo(() => {
     if (venueAnnouncements === undefined) return undefined;
@@ -38,7 +30,7 @@ export const ScreenRotationView: React.FC = () => {
   if (entries === undefined) return <></>;
   if (entries.length == 0) return <ScreenHeroFiller />;
 
-  const now = tick === -1 ? dayjs().unix() : tick;
+  const now = tick.unix();
   const idx = Math.floor(now / ROTATE_INTERVAL) % (entries.length + 1);
   const ann = idx == 0 ? null : entries[idx - 1];
 
