@@ -82,6 +82,7 @@ export type ScreenControlMessage = {
 };
 export type LightningTimer = {
   enabled: boolean;
+  tick: number | null;
   starts_at: number;
   ends_at: number;
   expires_at: number;
@@ -105,6 +106,7 @@ function dynamodbScreenControl(
       map
         ? {
             enabled: map?.enabled?.BOOL ?? true,
+            tick: ((x) => (x ? x : null))(Number(map?.tick?.N ?? 0)),
             starts_at: Number(map?.starts_at?.N ?? 0),
             ends_at: Number(map?.ends_at?.N ?? 0),
             expires_at: Number(map?.expires_at?.N ?? 0),
@@ -593,6 +595,9 @@ export const Api = {
             ? {
                 M: {
                   enabled: { BOOL: value.lightning_timer.enabled },
+                  tick: value.lightning_timer.tick
+                    ? { N: value.lightning_timer.tick.toString() }
+                    : { NULL: true },
                   starts_at: { N: value.lightning_timer.starts_at.toString() },
                   ends_at: { N: value.lightning_timer.ends_at.toString() },
                   expires_at: {

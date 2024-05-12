@@ -9,6 +9,8 @@ export type LightningTimerStatus = {
   m: string;
   s: string;
   shouldVisible: boolean;
+
+  isStaticTick: boolean;
   isEnabled: boolean;
   isExpired: undefined | boolean;
   isCompleted: boolean;
@@ -23,9 +25,12 @@ export type LightningTimerStatus = {
 export function useLightningTimer(
   timer: LightningTimer | undefined
 ): LightningTimerStatus | undefined {
-  const tick = useTick();
+  const localTick = useTick();
 
   if (!timer) return undefined;
+
+  const isStaticTick = !!timer.tick;
+  const tick = isStaticTick && timer.tick ? dayjs.unix(timer.tick) : localTick;
 
   const isEnabled = !!timer?.enabled;
   const isExpired = timer?.enabled
@@ -46,6 +51,7 @@ export function useLightningTimer(
     s: `${s < 10 ? "0" : ""}${s}`,
 
     shouldVisible: isEnabled && !isExpired,
+    isStaticTick,
     isEnabled,
     isExpired,
     isCompleted,

@@ -81,23 +81,27 @@ const TimerStatus: React.FC<{
 
         <Text>
           {!timer.shouldVisible ? (
-            <Tag variant="solid" colorScheme="yellow" mr={1}>
+            <Tag variant="solid" colorScheme="gray" mr={1}>
               Not Visible
             </Tag>
           ) : null}
           {!timer.isEnabled ? (
             <Tag variant="solid" colorScheme="red" mr={1}>
-              Disabled
+              Manually Halted
             </Tag>
           ) : null}
           {timer.isExpired ? (
-            <Tag variant="solid" colorScheme="gray" mr={1}>
+            <Tag variant="solid" colorScheme="yellow" mr={1}>
               Expired
             </Tag>
           ) : null}
-          {timer.isCompleted ? (
+          {timer.isStaticTick ? (
+            <Tag variant="solid" colorScheme="orange" mr={1}>
+              Paused
+            </Tag>
+          ) : timer.isCompleted ? (
             <Tag variant="solid" colorScheme="green" mr={1}>
-              Completed
+              Finished
             </Tag>
           ) : (
             <Tag variant="solid" colorScheme="gray" mr={1}>
@@ -150,32 +154,56 @@ const TimerActions: React.FC<{
       });
   };
 
-  const onDisable = () => {
-    if (!apictx) return;
-    if (isRequesting) return;
-    const newUndoBuffer = timer.settings;
-    Api.updateScreenControl(apictx, {
-      ...screen,
-      lightning_timer: { ...timer.settings, enabled: false },
-    })
-      .then((v) => {
-        console.log("timer disabled", v);
-        setIsRequesting(false);
-        setUndoBuffer(newUndoBuffer);
+  const submitPatch = (patchFn: () => Partial<LightningTimer> | undefined) => {
+    return () => {
+      if (!apictx) return;
+      if (isRequesting) return;
+      const patch = patchFn();
+      if (!patch) return;
+
+      const newUndoBuffer = timer.settings;
+      Api.updateScreenControl(apictx, {
+        ...screen,
+        lightning_timer: { ...timer.settings, ...patch },
       })
-      .catch((e) => {
-        setIsRequesting(false);
-        toast(errorToToast(e));
-      });
+        .then((v) => {
+          console.log("timer updated", v);
+          setIsRequesting(false);
+          setUndoBuffer(newUndoBuffer);
+        })
+        .catch((e) => {
+          setIsRequesting(false);
+          toast(errorToToast(e));
+        });
+    };
   };
 
+  const onDisable = submitPatch(() => ({ enabled: false }));
+  const onPause = submitPatch(() => {
+    const now = dayjs();
+    return { tick: now.unix(), expires_at: now.unix() + EXPIRY * 2 };
+  });
+  const onResume = submitPatch(() => {
+    const staticTick = timer.settings.tick;
+    if (!staticTick) return;
+    const now = dayjs();
+    const newEndsAt = now.unix() + (timer.settings.ends_at - staticTick);
+    return {
+      tick: null,
+      starts_at: now.unix(),
+      ends_at: newEndsAt,
+      expires_at: newEndsAt + EXPIRY,
+    };
+  });
+
   return (
-    <Box textAlign={["left", "left", "center", "center"]}>
+    <Box textAlign={["left", "left", "center", "center"]} my={3}>
       <Text>
         <Button
           isDisabled={!apictx || !undoState}
           colorScheme="gray"
           onClick={onUndo}
+          mr={2}
         >
           Undo
         </Button>
@@ -184,9 +212,30 @@ const TimerActions: React.FC<{
           isLoading={isRequesting}
           colorScheme="red"
           onClick={onDisable}
+          mr={2}
         >
           Disable and Hide
         </Button>
+        {timer.isStaticTick ? (
+          <Button
+            isDisabled={!apictx || !timer.shouldVisible}
+            isLoading={isRequesting}
+            colorScheme="green"
+            onClick={onResume}
+          >
+            Resume
+          </Button>
+        ) : (
+          <Button
+            isDisabled={!apictx || !timer.shouldVisible}
+            isLoading={isRequesting}
+            colorScheme="orange"
+            onClick={onPause}
+            mr={2}
+          >
+            Pause
+          </Button>
+        )}
       </Text>
     </Box>
   );
