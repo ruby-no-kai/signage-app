@@ -472,11 +472,14 @@ export const Api = {
 
   useScreenControl(aws: ApiContext | null, track: TrackSlug) {
     return useSWR<ScreenControlFull>(
-      aws ? `/.virtual/screen_control/${track}` : null,
+      aws ? `/.virtual/screen_controls/${track}` : null,
       async () => {
+        if (ALL_TRACKS.indexOf(track) < 0)
+          console.warn("useScreenControl unknown track given", { track });
+        console.log("useScreenControl mutation", { track });
         if (!aws) throw "aws is null";
         const pk = `${aws.config.tenant}::screen_controls`;
-        const sk = `${aws.config.tenant}::screen_control:${track}`;
+        const sk = `${aws.config.tenant}::screen_controls:${track}`;
         const resp = await aws.dynamodb.send(
           new QueryCommand({
             TableName: aws.config.dynamodb_table_name,
@@ -497,6 +500,7 @@ export const Api = {
     return useSWR<Map<TrackSlug, ScreenControl>>(
       aws ? `/.virtual/screen_controls` : null,
       async () => {
+        console.log("useScreenControls mutation");
         if (!aws) throw "aws is null";
         const key = `${aws.config.tenant}::screen_controls`;
         const paginator = paginateQuery(
@@ -596,6 +600,7 @@ export const Api = {
     return useSWR<VenueAnnouncement[]>(
       aws ? `/.virtual/venue_announcements` : null,
       async () => {
+        console.log("useVenueAnnouncements mutation");
         if (!aws) throw "aws is null";
         const key = `${aws.config.tenant}::venue_announcements`;
         const paginator = paginateQuery(
