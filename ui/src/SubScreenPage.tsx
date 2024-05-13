@@ -1,24 +1,11 @@
-import React, { useCallback } from "react";
+import React,  from "react";
 
-import {
-  HStack,
-  VStack,
-  Heading,
-  Flex,
-  Box,
-  Container,
-  Image,
-  Text,
-} from "@chakra-ui/react";
+import { Flex, Box } from "@chakra-ui/react";
 import { AspectRatio } from "@chakra-ui/react";
 
-import Api, { consumeChatAdminControl, TrackSlug } from "./Api";
-import { Colors } from "./theme";
-import { Logo } from "./Logo";
+import Api  from "./Api";
+import { ScreenColors } from "./theme";
 
-import { useChat } from "./ChatProvider";
-import { ChatUpdate } from "./ChatSession";
-import { useParams } from "react-router-dom";
 import { useKioskContext } from "./KioskProvider";
 import { TickProvider } from "./TickProvider";
 import { useApiContext } from "./ApiContext";
@@ -33,7 +20,13 @@ export const SubScreenPage: React.FC = () => {
     <TickProvider>
       <Box w="100vw" h="auto">
         <AspectRatio ratio={16 / 9}>
-          <Box bgColor={Colors.bg} bgSize="contain" w="100%" h="100%" p="0.7vw">
+          <Box
+            bgColor={ScreenColors.bg}
+            bgSize="contain"
+            w="100%"
+            h="100%"
+            p="0.7vw"
+          >
             <SubScreenInner />
           </Box>
         </AspectRatio>

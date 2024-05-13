@@ -3,7 +3,7 @@ import React from "react";
 import { HStack, VStack, Flex, Box, Text } from "@chakra-ui/react";
 
 import { Api, ScreenControl, ScreenControlMessage } from "./Api";
-import { Colors, Fonts } from "./theme";
+import { Colors, Fonts, ScreenFonts } from "./theme";
 import { Logo } from "./Logo";
 
 export const ScreenMessageView: React.FC<{
@@ -12,15 +12,12 @@ export const ScreenMessageView: React.FC<{
   if (!screen?.message) throw "screen.message is mandatory";
   return (
     <Flex minW="45vw" w="100%" h="100%" direction="column">
-      <Box css={{ "& svg": { height: "1.8vw", width: "auto" } }}>
-        <Logo />
-      </Box>
       <Box
         w="100%"
         flexGrow={1}
         flexShrink={0}
         flexBasis={0}
-        fontFamily={Fonts.heading}
+        fontFamily={ScreenFonts.body}
       >
         {<AnnounceBasic message={screen.message} />}
       </Box>
@@ -38,21 +35,28 @@ const AnnounceBasic: React.FC<{ message: ScreenControlMessage }> = ({
       direction="column"
       justify="space-around"
       color={Colors.textDefault}
-      textAlign="center"
+      textAlign="left"
     >
-      {message.heading ? (
-        <Text fontWeight="700" fontSize="4vw" lineHeight="6vw">
-          {returnToBr(message.heading)}
-        </Text>
-      ) : null}
-      {/*message.next_schedule ? (
+      <Box>
+        {message.heading ? (
+          <Text
+            fontWeight="400"
+            fontSize="4vw"
+            lineHeight="6vw"
+            fontFamily={ScreenFonts.heading}
+          >
+            {returnToBr(message.heading)}
+          </Text>
+        ) : null}
+        {/*message.next_schedule ? (
         <AnnounceNextSchedule schedule={message.next_schedule} />
         ) : null*/}
-      {message.footer ? (
-        <Text fontWeight="500" fontSize="1.7vw" lineHeight="2vw">
-          {returnToBr(message.footer)}
-        </Text>
-      ) : null}
+        {message.footer ? (
+          <Text fontWeight="500" fontSize="1.7vw" lineHeight="2vw" mt="3vw">
+            {returnToBr(message.footer)}
+          </Text>
+        ) : null}
+      </Box>
     </Flex>
   );
 };

@@ -2,7 +2,7 @@ import React from "react";
 
 import { Box, Flex } from "@chakra-ui/react";
 import { LightningTimerStatus } from "./LightningTimer";
-import { Fonts } from "./theme";
+import { Fonts, ScreenFonts } from "./theme";
 
 export const SubScreenLightningTimerView: React.FC<{
   timer: LightningTimerStatus;
@@ -14,7 +14,7 @@ export const SubScreenLightningTimerView: React.FC<{
         fontSize="14vw"
         lineHeight="14vw"
         textAlign="center"
-        fontFamily={Fonts.heading}
+        fontFamily={ScreenFonts.timer}
         fontWeight={700}
       >
         {timer.m}:{timer.s}

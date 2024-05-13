@@ -22,6 +22,8 @@ schedule = YAML.safe_load(File.read(schedule_yml))
 
 sessions = []
 
+long_title_session = nil
+
 schedule.each do |day, day_data| # day = "may15"
   #day_ts = Time.parse("#{day.capitalize.sub(/\d/, ' ')} #{Time.now.year} 00:00:00 +09:00")
   day_data.fetch('events', []).each do |event|
@@ -53,6 +55,8 @@ schedule.each do |day, day_data| # day = "may15"
         end,
         updated_at:,
       )
+      long_title_session ||= sessions.last
+      long_title_session = sessions.last if sessions.last.fetch(:title).size > long_title_session.fetch(:title).size
     end
   end
 end
@@ -83,3 +87,5 @@ pk =  "#{tenant}::sessions"
     )
   end
 end
+
+p(long_title_session:)

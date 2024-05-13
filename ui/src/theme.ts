@@ -2,7 +2,7 @@ import { extendTheme } from "@chakra-ui/react";
 
 const main = "#333333"; // 2023 main,primary,default-text
 const accent = "#ba083d"; // 2023 accent red
-//
+
 export const Colors = {
   // for chat pinned bg
   baseLight: "#ffffff", // 2023 main
@@ -15,8 +15,9 @@ export const Colors = {
   linkHover: "#2364c9",
   lightGray: "#BFC6C9",
 
-  bg: "#f8f8f8", // 2023
-
+  controlBg: "#f8f8f8",
+  backgroundColor: "#f8f8f8",
+  bg: "#ffec00", // 2024 yellow
   secondary: "#7C757D",
   secondaryText: "#767077",
 
@@ -25,8 +26,6 @@ export const Colors = {
   textDefault: "#333333", // 2023
   textAccent: accent,
   textMuted: "#7d7167", // 2023
-
-  backgroundColor: "#f8f8f8", // 2023 bg
 
   border: "#DFDFDF",
   chatBorder: "#CED4DA", // TODO:
@@ -125,3 +124,18 @@ export const theme = extendTheme({
     },
   },
 });
+
+const screenMain = "#000000"; // 2024 main
+const screenAccent = "#ffec00"; // 2024 yellow
+export const ScreenColors = {
+  ...Colors,
+  main: screenMain, // 2024
+  accent: screenAccent, // 2024
+  bg: "#ffffff", // 2024
+};
+export const ScreenFonts = {
+  ...Fonts,
+  heading: "Dela Gothic One",
+  body: "Poppins",
+  timer: "Poppins",
+};

@@ -20,7 +20,7 @@ import {
 import { Center } from "@chakra-ui/react";
 
 import { Api, ConferenceSession, Speaker } from "./Api";
-import { Colors, Fonts } from "./theme";
+import { Colors, Fonts, ScreenFonts } from "./theme";
 import { Logo } from "./Logo";
 
 import { ScreenHeroFiller } from "./ScreenHeroFiller";
@@ -95,16 +95,24 @@ export const ScreenSessionsView: React.FC = () => {
       direction="column"
       justify="space-around"
       textAlign="center"
+      fontFamily={ScreenFonts.body}
     >
-      <VStack w="100%" spacing="1vw">
-        <Text fontWeight="500" fontSize="2.0vw" lineHeight="2.2vw">
-          {state === "in_session" ? <>Ongoing Sessions</> : null}
-          {state === "break" ? <>Next sessions {relativeTime}</> : null}
-          {state === "mixed" ? <>Current and Upcoming Sessions</> : null}
-        </Text>
-
-        {/*<AnnounceTime unix={earliestStartUnix} />*/}
-      </VStack>
+      {/*<VStack w="100%" spacing="1vw">*/}
+      <Text
+        fontWeight="500"
+        fontSize="2.3vw"
+        lineHeight="3vw"
+        position="absolute"
+        textAlign="right"
+        right="3vw"
+        top="52vw"
+        fontWeight={600}
+      >
+        {/* ^ position aligned with Bottom-left 'RubyKaigi 2024' logo */}
+        {state === "in_session" ? <>Ongoing Sessions</> : null}
+        {state === "break" ? <>Next sessions {relativeTime}</> : null}
+        {state === "mixed" ? <>Current and Upcoming Sessions</> : null}
+      </Text>
 
       {Array.from(recentSessions.entries()).map(([track, s]) =>
         s ? <AnnounceUpcomingTopic key={track} session={s} /> : null
@@ -138,19 +146,33 @@ const AnnounceUpcomingTopic: React.FC<{ session: ConferenceSession }> = ({
   session,
 }) => {
   return (
-    <Box textAlign="left">
+    <Box textAlign="left" fontFamily={ScreenFonts.body}>
       {/* TODO: missing room name */}
-      <Text fontWeight="500" fontSize="1.8vw" lineHeight="2.3vw" mb="1.1vw">
-        {session.hall}
-      </Text>
-      <HStack alignItems="top" spacing="0.7vw" textAlign="left">
-        {session.speakers && session.speakers.length > 0 ? (
-          <Box w="100%" maxW="7vw">
+
+      <HStack alignItems="center" spacing="0.7vw" textAlign="left">
+        <Box minW="11.5vw" textAlign="right">
+          <Text fontWeight="500" fontSize="1.8vw" lineHeight="2.3vw">
+            {session.hall}
+          </Text>
+          <Text fontWeight="500" fontSize="1.2vw" lineHeight="1.8vw">
+            #rubykaigi{session.track.toUpperCase()}
+          </Text>
+        </Box>
+        <Box minW="7vw" w="7vw" mx="1vw">
+          {session.speakers && session.speakers.length > 0 ? (
             <SpeakerAvatar speakers={session.speakers} />
-          </Box>
-        ) : null}
+          ) : null}
+        </Box>
         <Box as="div">
-          <Heading as="h2" fontSize="2.1vw" lineHeight="2.5vw" fontWeight="700">
+          <Heading
+            as="h2"
+            minW="26vw"
+            flexGrow={2}
+            fontSize="2.1vw"
+            lineHeight="2.5vw"
+            fontWeight="700"
+            fontFamily={ScreenFonts.body}
+          >
             {session.title}
           </Heading>
           {session.speakers && session.speakers.length > 0 ? (
@@ -179,7 +201,7 @@ const ScreenTopicSpeaker: React.FC<{ speaker: Speaker }> = ({ speaker }) => {
       fontSize="1.6vw"
       h="20px"
       lineHeight="2vw"
-      mt="0.7vw"
+      mt="1vw"
     >
       <Text as="span">{speaker.name}</Text>
       {primaryIcon ? primaryIcon : null}

@@ -5,7 +5,7 @@ import { VStack, Flex, Box, Image, Text } from "@chakra-ui/react";
 import { Center } from "@chakra-ui/react";
 
 import { Api, ConferenceSponsorship, ConferenceSponsorshipPlan } from "./Api";
-import { Fonts } from "./theme";
+import { Fonts, ScreenFonts } from "./theme";
 import { useApiContext } from "./ApiContext";
 import { useTick } from "./TickProvider";
 
@@ -22,14 +22,14 @@ export const ScreenSponsorRotation: React.FC = () => {
   if (!page.items[0]) return <></>;
 
   return (
-    <Box w="45vw" h="100%" px="6vw" pt="4vw" bgColor="#ffffff">
+    <Box w="41vw" h="100%" px="6vw" pt="4.6vw" bgColor="#ffffff">
       <Center>
         <VStack spacing="2.8vw">
           <Text
             fontWeight="500"
             fontSize="2vw"
             lineHeight="4.6vw"
-            fontFamily={Fonts.heading}
+            fontFamily={ScreenFonts.heading}
           >
             Sponsored by
           </Text>

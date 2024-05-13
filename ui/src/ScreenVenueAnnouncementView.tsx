@@ -6,6 +6,7 @@ import type { VenueAnnouncement } from "./Api";
 //import { Colors } from "./theme";
 import { Logo } from "./Logo";
 import { QRCodeSVG } from "qrcode.react";
+import { ScreenFonts } from "./theme";
 
 export const ScreenVenueAnnouncementView: React.FC<{
   ann: VenueAnnouncement;
@@ -13,15 +14,12 @@ export const ScreenVenueAnnouncementView: React.FC<{
   // XXX: dupe with ScreenAnnounceView Inner
   return (
     <Flex minW="45vw" w="100%" h="100%" direction="column">
-      <Box css={{ "& svg": { height: "1.8vw", width: "auto" } }}>
-        <Logo />
-      </Box>
       <Flex
         w="100%"
         h="100%"
         direction="column"
         justify="space-between"
-        textAlign="center"
+        textAlign="left"
       >
         <Flex
           w="100%"
@@ -30,6 +28,8 @@ export const ScreenVenueAnnouncementView: React.FC<{
           flexBasis={0}
           direction="column"
           justify="space-around"
+          fontFamily={ScreenFonts.body}
+          ml="1vw"
         >
           <Text fontWeight="500" fontSize="3vw" lineHeight="5vw">
             {returnToBr(ann.content)}
@@ -57,6 +57,7 @@ export const ScreenVenueAnnouncementView: React.FC<{
               fontSize="1.5vw"
               lineHeight="2vw"
               textDecoration="underline"
+              fontFamily={ScreenFonts.body}
             >
               <Text>{ann.url}</Text>
             </Flex>

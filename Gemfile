@@ -10,3 +10,5 @@ gem 'aws-sdk-dynamodb'
 gem 'http-2'
 gem 'aws-sdk-transcribestreamingservice'
 gem 'aws-sdk-medialive'
+
+gem 'discordrb'

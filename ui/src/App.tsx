@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 
 import { ChakraProvider, Container, useToast } from "@chakra-ui/react";
-import { theme } from "./theme";
+import { Colors, theme } from "./theme";
 
 import { AuthProvider } from "./AuthProvider";
 
@@ -46,6 +46,7 @@ const ControlLayout: React.FC = () => {
           maxW={["auto", "auto", "auto", "1700px"]}
           px={["0px", "0px", "15px", "15px"]}
           py="22px"
+          bgColor={Colors.controlBg}
         >
           <Outlet />
         </Container>
