@@ -1,6 +1,25 @@
 output "frontend_config" {
   value = local.frontend_config
 }
+output "captioner_ip_address" {
+  value = var.captioner_enabled ? aws_instance.captioner[0].private_ip : null
+}
+output "captioner_medialive_settings" {
+  value = {
+    for k, _p in var.captioner_channels :
+    k => {
+      public_outbound_ip = data.aws_eip.medialive-channel-public-outbound[k].public_ip
+      private_input = {
+        url        = replace(data.aws_medialive_input.private[k].destinations[0].url, "//[^/]+$/", "")
+        stream_key = replace(data.aws_medialive_input.private[k].destinations[0].url, "/^.+//", "")
+      }
+      public_input = {
+        url        = replace(data.aws_medialive_input.public[k].destinations[0].url, "//[^/]+$/", "")
+        stream_key = replace(data.aws_medialive_input.public[k].destinations[0].url, "/^.+//", "")
+      }
+    }
+  }
+}
 
 locals {
   cognito_url = "https://${var.cognito_domain}.auth.${data.aws_region.current.name}.amazoncognito.com"
