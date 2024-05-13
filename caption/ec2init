@@ -1,0 +1,7 @@
+#!/bin/bash -xe
+cd ~rk/signage-app
+export BUNDLE_JOBS=300
+export BUNDLE_FORCE_RUBY_PLATFORM=true
+
+bundle config set path ~rk/vendor/bundle
+bundle install
