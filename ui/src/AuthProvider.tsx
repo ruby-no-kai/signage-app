@@ -79,6 +79,7 @@ function useValue(
 
   const provider = useMemo(() => {
     if (!(cognitoId && config)) return undefined;
+    if (authStatus === undefined) return undefined;
     const roles: [string, string] = cognitoId.logins[config.user_pool_issuer]
       ? [
           config.iam_role_arn_authenticated_stage1,
@@ -88,8 +89,14 @@ function useValue(
           config.iam_role_arn_unauthenticated_stage1,
           config.iam_role_arn_unauthenticated_stage2,
         ];
-    return memoize(cognitoClassicProvider(config, cognitoId, ...roles));
-  }, [config, cognitoId]);
+    return memoize(
+      cognitoClassicProvider(config, cognitoId, ...roles),
+      (token) =>
+        token.expiration !== undefined &&
+        token.expiration.getTime() - Date.now() < 300000,
+      (token) => token.expiration !== undefined
+    );
+  }, [authStatus === undefined, config, cognitoId]);
 
   useEffect(() => {
     if (!provider) return;
