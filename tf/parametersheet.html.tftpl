@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RubyKaigi RTMP Parameters</title>
+<style>
+  body {
+    font-family: sans-serif;
+  }
+</style>
+</head>
+<body>
+<h1>RubyKaigi RTMP Parameters</h1>
+
+<p>Main の URL とストリームキーが通常利用する環境、Backup がバックアップとして用意している環境です。指示がない限り Main へ配信を行ってください。なお、Main には会場ネットワークからでしか接続できません。</p>
+
+%{ for channel_name, settings in medialive_settings ~}
+<hr>
+  <h2><code>${channel_name}</code></h2>
+
+  <h3>Main</h3>
+  <p>
+    <ul>
+      <li><b>URL:</b> <code>${settings.private_input.url}</code></li>
+      <li><b>Stream Key:</b> <code>${settings.private_input.stream_key}</code></li>
+    </ul>
+  </p>
+
+  <h3>Backup</h3>
+  <p>
+    <ul>
+      <li><b>URL:</b> <code>${settings.public_input.url}</code></li>
+      <li><b>Stream Key:</b> <code>${settings.public_input.stream_key}</code></li>
+    </ul>
+  </p>
+
+%{ endfor ~}
+<!-- vim: ft=html -->

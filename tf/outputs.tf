@@ -5,24 +5,15 @@ output "captioner_ip_address" {
   value = var.captioner_enabled ? aws_instance.captioner[0].private_ip : null
 }
 output "captioner_medialive_settings" {
-  value = {
-    for k, _p in var.captioner_channels :
-    k => {
-      public_outbound_ip = data.aws_eip.medialive-channel-public-outbound[k].public_ip
-      private_input = {
-        url        = replace(data.aws_medialive_input.private[k].destinations[0].url, "//[^/]+$/", "")
-        stream_key = replace(data.aws_medialive_input.private[k].destinations[0].url, "/^.+//", "")
-      }
-      public_input = {
-        url        = replace(data.aws_medialive_input.public[k].destinations[0].url, "//[^/]+$/", "")
-        stream_key = replace(data.aws_medialive_input.public[k].destinations[0].url, "/^.+//", "")
-      }
-    }
-  }
+  value = local.captioner_medialive_settings
 }
 
 output "cloudfront_distribution_domain_name" {
   value = aws_cloudfront_distribution.public.domain_name
+}
+
+output "rtmp_parametersheet_url" {
+  value = var.captioner_enabled ? "https://${var.app_domain}/data/rtmp-${random_id.parametersheet.b64_url}.html" : null
 }
 
 locals {
@@ -44,4 +35,21 @@ locals {
     user_pool_client_secret = aws_cognito_user_pool_client.identity.client_secret
     tenant                  = "default"
   }
+
+  captioner_medialive_settings = {
+    for k, _p in var.captioner_channels :
+    k => {
+      public_outbound_ip = data.aws_eip.medialive-channel-public-outbound[k].public_ip
+      private_input = {
+        url        = replace(data.aws_medialive_input.private[k].destinations[0].url, "//[^/]+$/", "")
+        stream_key = replace(data.aws_medialive_input.private[k].destinations[0].url, "/^.+//", "")
+      }
+      public_input = {
+        url        = replace(data.aws_medialive_input.public[k].destinations[0].url, "//[^/]+$/", "")
+        stream_key = replace(data.aws_medialive_input.public[k].destinations[0].url, "/^.+//", "")
+      }
+    }
+  }
+
+
 }
