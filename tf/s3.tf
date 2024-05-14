@@ -34,3 +34,11 @@ resource "aws_s3_bucket_policy" "public" {
   depends_on = [aws_s3_bucket_public_access_block.public]
 }
 
+resource "aws_s3_object" "config" {
+  count         = var.manage_config_in_s3 ? 1 : 0
+  bucket        = aws_s3_bucket.public.bucket
+  key           = "dynamic/config.json"
+  content_type  = "application/json; charset=utf-8"
+  cache_control = "max-age=0, must-revalidate"
+  content       = "${jsonencode(local.frontend_config)}\n"
+}

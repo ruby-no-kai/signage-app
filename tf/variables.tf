@@ -76,6 +76,11 @@ variable "cloudfront_log_prefix" {
   type = string
 }
 
+variable "manage_config_in_s3" {
+  type    = bool
+  default = true
+}
+
 locals {
   callback_urls = toset(setunion(var.callback_urls, ["https://${var.app_domain}/oauth2callback"]))
 }
