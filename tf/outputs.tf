@@ -21,6 +21,10 @@ output "captioner_medialive_settings" {
   }
 }
 
+output "cloudfront_distribution_domain_name" {
+  value = aws_cloudfront_distribution.public.domain_name
+}
+
 locals {
   cognito_url = "https://${var.cognito_domain}.auth.${data.aws_region.current.name}.amazoncognito.com"
   frontend_config = {

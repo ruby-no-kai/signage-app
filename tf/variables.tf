@@ -68,6 +68,13 @@ variable "captioner_channels" {
   default = {}
 }
 
+variable "cloudfront_log_bucket" {
+  type = string
+}
+
+variable "cloudfront_log_prefix" {
+  type = string
+}
 
 locals {
   callback_urls = toset(setunion(var.callback_urls, ["https://${var.app_domain}/oauth2callback"]))
