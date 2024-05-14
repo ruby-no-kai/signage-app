@@ -1,12 +1,5 @@
 import React from "react";
-import * as dayjs from "dayjs";
-import * as relativeTime from "dayjs/plugin/relativeTime";
-import * as utc from "dayjs/plugin/utc";
-import * as timezone from "dayjs/plugin/timezone";
-import type { Dayjs } from "dayjs";
-dayjs.extend(relativeTime);
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import dayjs from "./dayjs";
 
 import { HStack, VStack, Flex, Box, Text } from "@chakra-ui/react";
 import { useTick } from "./TickProvider";

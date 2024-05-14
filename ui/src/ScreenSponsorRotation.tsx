@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import dayjs from "dayjs";
 
 import { VStack, Flex, Box, Image, Text } from "@chakra-ui/react";
 import { Center } from "@chakra-ui/react";

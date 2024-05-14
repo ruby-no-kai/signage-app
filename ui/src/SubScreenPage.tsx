@@ -1,9 +1,9 @@
-import React,  from "react";
+import React from "react";
 
 import { Flex, Box } from "@chakra-ui/react";
 import { AspectRatio } from "@chakra-ui/react";
 
-import Api  from "./Api";
+import Api from "./Api";
 import { ScreenColors } from "./theme";
 
 import { useKioskContext } from "./KioskProvider";

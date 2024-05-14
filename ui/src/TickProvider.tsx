@@ -1,14 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
+import dayjs from "./dayjs";
 import type { Dayjs } from "dayjs";
 import { useSearchParams } from "react-router-dom";
-dayjs.extend(relativeTime);
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 type TickContextData = { tick: Dayjs };
 

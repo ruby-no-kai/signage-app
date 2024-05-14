@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { mutate } from "swr";
-import dayjs from "dayjs";
+import dayjs from "./dayjs";
 
 import type { ApiContext } from "./ApiContext";
 import { GetCallerIdentityCommand } from "@aws-sdk/client-sts";
