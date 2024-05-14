@@ -2,14 +2,16 @@ import {
   fromCognitoIdentityPool,
   fromTemporaryCredentials,
   CognitoIdentityCredentialProvider,
+  fromWebToken,
 } from "@aws-sdk/credential-providers";
 import { memoize } from "@smithy/property-provider";
 import {
   AwsCredentialIdentity,
+  AwsCredentialIdentityProvider,
   MemoizedProvider,
   Provider,
 } from "@aws-sdk/types";
-import { ReactNode, createContext, useContext } from "react";
+import { ReactNode, createContext, useEffect, useMemo } from "react";
 import {
   AuthContextProps,
   AuthProvider as OIDCAuthProvider,
@@ -19,25 +21,33 @@ import Api, { Config } from "./Api";
 import { WebStorageStateStore } from "oidc-client-ts";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { STSClient } from "@aws-sdk/client-sts";
+import useSWR from "swr";
+import {
+  CognitoIdentityClient,
+  GetIdCommand,
+  GetOpenIdTokenCommand,
+} from "@aws-sdk/client-cognito-identity";
 
 type CredentialVendedfromProvider<P> = P extends Provider<infer X> ? X : never;
+
+type CognitoIdSource =
+  | { anonymous: true; sub: "" }
+  | { anonymous: false; sub: string; idToken: string }
+  | undefined;
 
 type ContextData =
   | { state: "waiting"; provider: null }
   | ({
       state: "ready";
-      provider: MemoizedProvider<
-        CredentialVendedfromProvider<CognitoIdentityCredentialProvider>
-      >;
       loggedIn: boolean;
     } & AwsClients);
 
 export type AwsClients = {
   config: Config;
+  identityId: string;
   credentials: MemoizedProvider<
-    CredentialVendedfromProvider<CognitoIdentityCredentialProvider>
+    CredentialVendedfromProvider<AwsCredentialIdentityProvider>
   >;
-  mqttCredentials: MemoizedProvider<AwsCredentialIdentity>;
   dynamodb: DynamoDBClient;
   sts: STSClient;
 };
@@ -47,52 +57,49 @@ export const AuthContext = createContext<ContextData>({
   provider: null,
 });
 
-function getValue(
+function useValue(
   config: Config | undefined,
   auth: AuthContextProps
 ): ContextData {
-  if (!config) return { state: "waiting", provider: null };
-  if (auth.isLoading) return { state: "waiting", provider: null };
-  if (auth.error) {
-    console.error(auth.error);
-    return { state: "waiting", provider: null };
+  if (auth.error) console.error(auth.error);
+
+  let authStatus: CognitoIdSource = undefined;
+  if (config && !auth.isLoading && !auth.error) {
+    if (auth.user && auth.user.id_token) {
+      authStatus = {
+        anonymous: false,
+        sub: auth.user.profile.sub,
+        idToken: auth.user.id_token,
+      };
+    } else {
+      authStatus = { anonymous: true, sub: "" };
+    }
   }
+  const { data: cognitoId } = useCognitoId(config, authStatus);
 
-  const loggedIn = !!(auth.isAuthenticated && auth.user);
-  const logins =
-    loggedIn && auth.user?.id_token
-      ? { [config.user_pool_issuer]: auth.user.id_token }
-      : {};
+  const provider = useMemo(() => {
+    if (!(cognitoId && config)) return undefined;
+    const roles: [string, string] = cognitoId.logins[config.user_pool_issuer]
+      ? [
+          config.iam_role_arn_authenticated_stage1,
+          config.iam_role_arn_authenticated_stage2,
+        ]
+      : [
+          config.iam_role_arn_unauthenticated_stage1,
+          config.iam_role_arn_unauthenticated_stage2,
+        ];
+    return memoize(cognitoClassicProvider(config, cognitoId, ...roles));
+  }, [config, cognitoId]);
 
-  const provider = memoize(
-    fromCognitoIdentityPool({
-      identityPoolId: config?.identity_pool_id,
-      clientConfig: { region: config.aws_region },
-      logins,
-    })
-  );
+  useEffect(() => {
+    if (!provider) return;
+    setTimeout(() => provider().then((v: unknown) => v), 0);
+  }, [provider]);
 
-  // Using separate non-Cognito provided credentials to avoid Amazon Cognito special logics on AWS IoT (which requires resource-policy for every identityId)
-  const mqttProvider = memoize(async () => {
-    const masterCredentials = await provider();
-    const id = (masterCredentials as unknown as { identityId: string })
-      .identityId;
-
-    return await fromTemporaryCredentials({
-      masterCredentials: provider,
-      clientConfig: { region: config.aws_region },
-      params: {
-        RoleArn: loggedIn
-          ? config.iot_iam_role_arn_authenticated
-          : config.iot_iam_role_arn_unauthenticated,
-        RoleSessionName: `${config.iot_topic_prefix}-browser`,
-        DurationSeconds: 3600,
-        Tags: [{ Key: "RkSignageUserSub", Value: id }],
-      },
-    })();
-  });
-
-  setTimeout(() => mqttProvider().then((v) => v), 0);
+  if (!provider) return { state: "waiting", provider: null };
+  if (!config) return { state: "waiting", provider: null };
+  if (!cognitoId) return { state: "waiting", provider: null };
+  if (!authStatus) return { state: "waiting", provider: null };
 
   const clientConfig = {
     region: config.aws_region,
@@ -101,13 +108,90 @@ function getValue(
 
   return {
     state: "ready",
-    provider,
-    loggedIn,
     config,
+    loggedIn: !authStatus.anonymous,
+    identityId: cognitoId.identityId,
     credentials: provider,
-    mqttCredentials: mqttProvider,
     dynamodb: new DynamoDBClient(clientConfig),
     sts: new STSClient(clientConfig),
+  };
+}
+
+type CognitoIdValue = { identityId: string; logins: { [x: string]: string } };
+function useCognitoId(config: Config | undefined, auth: CognitoIdSource) {
+  return useSWR<CognitoIdValue>(
+    [
+      `/.virtual/AuthProvider-cognito-id`,
+      config?.iot_topic_prefix,
+      auth?.anonymous,
+      auth?.sub,
+    ],
+    async ([, prefix, anonymous, sub]) => {
+      if (config === undefined) throw "!config";
+      const cacheKey = anonymous
+        ? `rk-signage:${prefix}:anon:anon`
+        : `rk-signage:${prefix}:u:${sub}`;
+      const logins =
+        config && auth && auth.anonymous === false
+          ? { [config.user_pool_issuer]: auth.idToken }
+          : {};
+      const cachedItem = window.localStorage.getItem(cacheKey);
+      if (cachedItem) {
+        return { identityId: cachedItem, logins };
+      }
+      const client = new CognitoIdentityClient({ region: config.aws_region });
+
+      const res = await client.send(
+        new GetIdCommand({
+          IdentityPoolId: config.identity_pool_id,
+          Logins: logins,
+        })
+      );
+      if (!res.IdentityId) {
+        throw "empty cognito identity id";
+      }
+      window.localStorage.setItem(cacheKey, res.IdentityId);
+      return { identityId: res.IdentityId, logins };
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: false,
+    }
+  );
+}
+
+function cognitoClassicProvider(
+  config: Config,
+  cognitoId: CognitoIdValue,
+  roleArn1: string,
+  roleArn2: string
+): AwsCredentialIdentityProvider {
+  return async (): Promise<AwsCredentialIdentity> => {
+    const cognito = new CognitoIdentityClient({ region: config.aws_region });
+    const idToken = await cognito.send(
+      new GetOpenIdTokenCommand({
+        IdentityId: cognitoId.identityId,
+        Logins: cognitoId.logins,
+      })
+    );
+    const masterCredentials = fromWebToken({
+      roleArn: roleArn1,
+      webIdentityToken: idToken.Token!,
+      roleSessionName: `${config.iot_topic_prefix}-browser`,
+      durationSeconds: 3600,
+      clientConfig: { region: config.aws_region },
+    });
+    return fromTemporaryCredentials({
+      masterCredentials,
+      clientConfig: { region: config.aws_region },
+      params: {
+        RoleArn: roleArn2,
+        RoleSessionName: `${config.iot_topic_prefix}-browser`,
+        DurationSeconds: 3600,
+        Tags: [{ Key: "RkSignageUserSub", Value: cognitoId.identityId }],
+      },
+    })();
   };
 }
 
@@ -121,8 +205,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         authority: `https://${config.user_pool_issuer}`,
         metadata: {
           issuer: `https://${config.user_pool_issuer}`,
-          authorization_endpoint:
-            "https://rk-signage-dev.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize",
+          authorization_endpoint: config.user_pool_authorize_url,
+          //"https://rk-signage-dev.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize",
           token_endpoint: config.user_pool_token_url,
           //jwks_uri: `https://${config.user_pool_issuer}/.well-known/jwks.json`,
           response_types_supported: ["code", "token"],
@@ -161,7 +245,7 @@ const AuthInner: React.FC<{
   config: Config | undefined;
 }> = ({ children, config }) => {
   const auth = useAuth();
-  const val = getValue(config, auth);
+  const val = useValue(config, auth);
   console.log("auth value", val);
   return <AuthContext.Provider value={val}>{children}</AuthContext.Provider>;
 };

@@ -38,15 +38,19 @@ export type Config = {
 
   iot_endpoint: string;
   iot_topic_prefix: string;
-  iot_iam_role_arn_unauthenticated: string;
-  iot_iam_role_arn_authenticated: string;
 
-  identity_pool_id: string;
   user_pool_issuer: string;
   user_pool_client_id: string;
   user_pool_client_secret: string;
   user_pool_authorize_url: string;
   user_pool_token_url: string;
+
+  identity_pool_id: string;
+
+  iam_role_arn_unauthenticated_stage1: string;
+  iam_role_arn_unauthenticated_stage2: string;
+  iam_role_arn_authenticated_stage1: string;
+  iam_role_arn_authenticated_stage2: string;
 };
 
 export type ScreenMode = "rotation" | "filler" | "message";
@@ -741,9 +745,7 @@ export const Api = {
       aws ? `/.virtual/current_kiosk` : null,
       async () => {
         if (!aws) throw "aws is null";
-        const creds = await aws.dynamodb.config.credentials();
-        const id = (creds as unknown as { identityId: string }).identityId;
-
+        const id = aws.identityId;
         const pk = `${aws.config.tenant}::kiosks:${id}`;
         const sk = `${aws.config.tenant}::kiosks`;
         const resp = await aws.dynamodb.send(
@@ -763,8 +765,7 @@ export const Api = {
   },
 
   async enrollKiosk(aws: ApiContext, input: Pick<Kiosk, "name">) {
-    const creds = await aws.dynamodb.config.credentials();
-    const id = (creds as unknown as { identityId: string }).identityId;
+    const id = aws.identityId;
 
     const now = new Date();
 

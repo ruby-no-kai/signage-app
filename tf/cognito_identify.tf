@@ -1,6 +1,7 @@
 resource "aws_cognito_identity_pool" "pool" {
   identity_pool_name               = var.name_prefix
   allow_unauthenticated_identities = true
+  allow_classic_flow               = true
 
   cognito_identity_providers {
     client_id               = aws_cognito_user_pool_client.identity.id
@@ -9,10 +10,10 @@ resource "aws_cognito_identity_pool" "pool" {
   }
 }
 
-resource "aws_cognito_identity_pool_roles_attachment" "user_role_attachment" {
-  identity_pool_id = aws_cognito_identity_pool.pool.id
-  roles = {
-    "authenticated"   = "${aws_iam_role.authenticated.arn}"
-    "unauthenticated" = "${aws_iam_role.unauthenticated.arn}"
-  }
-}
+#resource "aws_cognito_identity_pool_roles_attachment" "user_role_attachment" {
+#  identity_pool_id = aws_cognito_identity_pool.pool.id
+#  roles = {
+#    "authenticated"   = "${aws_iam_role.authenticated.arn}"
+#    "unauthenticated" = "${aws_iam_role.unauthenticated.arn}"
+#  }
+#}

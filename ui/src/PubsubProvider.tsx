@@ -3,6 +3,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import useSWR from "swr";
@@ -10,7 +11,7 @@ import useSWR from "swr";
 import { auth, iot, mqtt5 } from "aws-iot-device-sdk-v2/lib/browser";
 import type mqtt5_packet from "aws-crt/dist.browser/common/mqtt5_packet";
 import { ulid } from "ulid";
-import { AwsCredentialIdentity, Provider } from "@aws-sdk/types";
+import { AwsCredentialIdentity, Client, Provider } from "@aws-sdk/types";
 
 import { AuthContext, AwsClients } from "./AuthProvider";
 import { toUtf8 } from "@smithy/util-utf8";
@@ -18,7 +19,7 @@ import { makeWeakCallback } from "./weakcallback";
 
 export type PubsubContextDataReady = {
   state: "ready";
-  id: string; // clientId
+  id: ClientIdData;
   client: mqtt5.Mqtt5Client;
   subscriberBag: SubscriberBag;
 };
@@ -75,14 +76,15 @@ const PubsubEngine: React.FC<{
   set: (v: PubsubContextData) => void;
   aws: AwsClients;
 }> = ({ set, aws }) => {
-  const { data: clientId } = useClientId(aws);
+  const clientId = useMemo(() => makeClientId(aws), [aws]);
   const [subscriberBag] = useState<SubscriberBag>(new SubscriberBag());
   const [credentialsProvider, setCredentialsProvider] =
     useState<null | PubsubCredProvider>(null);
   React.useEffect(() => {
+    console.log("new PubsubCredProvider");
     const provider = new PubsubCredProvider(
       aws.config.aws_region,
-      aws.mqttCredentials
+      aws.credentials
     );
     provider.refreshCredentials().then(() => setCredentialsProvider(provider));
   }, [aws]);
@@ -221,20 +223,12 @@ export const PubsubMessageHandler: React.FC<{
   return <></>;
 };
 
-function useClientId(aws: AwsClients) {
-  return useSWR<string>(
-    `/.virtual/PubsubProvider-useClientId`,
-    async () => {
-      //const creds = await aws.credentials();
-      //const id = (creds as unknown as { identityId: string }).identityId;
-      return `${aws.config.iot_topic_prefix}-u-${ulid()}`;
-    },
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      revalidateIfStale: false,
-    }
-  );
+export type ClientIdData = { mqtt: string; identity: string };
+function makeClientId(aws: AwsClients): ClientIdData {
+  return {
+    mqtt: `${aws.config.iot_topic_prefix}-u-${ulid()}-${aws.identityId}`,
+    identityId: aws.identityId,
+  };
 }
 
 function credentialRefresherTask(target: WeakRef<PubsubCredProvider>) {
@@ -282,7 +276,7 @@ class PubsubCredProvider extends auth.CredentialsProvider {
 function createMqttClient(
   aws: AwsClients,
   credentialsProvider: PubsubCredProvider,
-  clientId: string,
+  clientId: ClientIdData,
   subscriberBag: SubscriberBag,
   set: (v: PubsubContextData) => void
 ): mqtt5.Mqtt5Client {
@@ -294,7 +288,7 @@ function createMqttClient(
         //region: aws.config.aws_region,
       }
     ).withConnectProperties({
-      clientId,
+      clientId: clientId.mqtt,
       keepAliveIntervalSeconds: 20,
     });
   console.log("mqtt5 client build", builder);

@@ -40,6 +40,6 @@ export function useKioskPropsFromSearch(): KioskContextData {
   const [searchParams] = useSearchParams();
   return {
     track: searchParams.get("track") || "_unknown",
-    kind: guardKioskKind(searchParams.get("kind")),
+    kind: guardKioskKind(searchParams.get("kind") || ""),
   };
 }

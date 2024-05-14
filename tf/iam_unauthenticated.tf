@@ -1,11 +1,10 @@
-resource "aws_iam_role" "unauthenticated" {
+resource "aws_iam_role" "unauthenticated-stage1" {
   name                 = "${var.iam_role_prefix}CognitoGuest"
   description          = "${var.iam_role_prefix}CognitoGuest"
-  assume_role_policy   = data.aws_iam_policy_document.unauthenticated-trust.json
+  assume_role_policy   = data.aws_iam_policy_document.unauthenticated-stage1-trust.json
   max_session_duration = 43200
 }
-
-data "aws_iam_policy_document" "unauthenticated-trust" {
+data "aws_iam_policy_document" "unauthenticated-stage1-trust" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -28,8 +27,60 @@ data "aws_iam_policy_document" "unauthenticated-trust" {
   }
 }
 
+resource "aws_iam_role_policy" "unauthenticated-stage1" {
+  role   = aws_iam_role.unauthenticated-stage1.name
+  policy = data.aws_iam_policy_document.unauthenticated-stage1.json
+}
+data "aws_iam_policy_document" "unauthenticated-stage1" {
+  statement {
+    effect    = "Allow"
+    actions   = ["sts:AssumeRole", "sts:TagSession"]
+    resources = [aws_iam_role.unauthenticated-stage2.arn]
+
+
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "aws:TagKeys"
+      values   = ["RkSignageUserSub"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestTag/RkSignageUserSub"
+      values   = ["$${cognito-identity.amazonaws.com:sub}"]
+    }
+  }
+}
+
+
+########
+
+
+
+
+resource "aws_iam_role" "unauthenticated-stage2" {
+  name                 = "${var.iam_role_prefix}BrowserGuest"
+  description          = "${var.iam_role_prefix}BrowserGuest"
+  assume_role_policy   = data.aws_iam_policy_document.unauthenticated-stage2-trust.json
+  max_session_duration = 43200
+}
+
+data "aws_iam_policy_document" "unauthenticated-stage2-trust" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole", "sts:TagSession"]
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.id}:root",
+        // aws_iam_role.authenticated-stage1.arn,
+        // "arn:aws:iam::${data.aws_caller_identity.current.id}:role/${var.iam_role_prefix}CognitoUser"
+      ]
+    }
+  }
+}
+
 resource "aws_iam_role_policy" "unauthenticated" {
-  role   = aws_iam_role.unauthenticated.name
+  role   = aws_iam_role.unauthenticated-stage2.name
   policy = data.aws_iam_policy_document.unauthenticated.json
 }
 
@@ -60,21 +111,12 @@ data "aws_iam_policy_document" "unauthenticated" {
       test     = "ForAllValues:StringLike"
       variable = "dynamodb:LeadingKeys"
       values = [
-        "*::kiosks:$${cognito-identity.amazonaws.com:sub}",
+        "*::kiosks:$${aws:PrincipalTag/RkSignageUserSub}",
       ]
     }
   }
-  statement {
-    effect    = "Allow"
-    actions   = ["sts:AssumeRole"]
-    resources = [aws_iam_role.unauthenticated-mqtt.arn]
-  }
-}
-resource "aws_iam_role_policy" "unauthenticated-iot" {
-  role   = aws_iam_role.unauthenticated.name
-  policy = data.aws_iam_policy_document.unauthenticated-iot.json
-}
-data "aws_iam_policy_document" "unauthenticated-iot" {
+
+
   statement {
     effect  = "Allow"
     actions = ["iot:Connect"]
@@ -110,52 +152,4 @@ data "aws_iam_policy_document" "unauthenticated-iot" {
       "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/uplink/kiosk=$${aws:PrincipalTag/RkSignageUserSub}/*",
     ]
   }
-}
-
-resource "aws_iam_role" "unauthenticated-mqtt" {
-  name                 = "${var.iam_role_prefix}CognitoGuestMqtt"
-  description          = "${var.iam_role_prefix}CognitoGuestMqtt"
-  assume_role_policy   = data.aws_iam_policy_document.unauthenticated-mqtt-trust.json
-  max_session_duration = 43200
-}
-data "aws_iam_policy_document" "unauthenticated-mqtt-trust" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.id}:role/${var.iam_role_prefix}CognitoGuest"
-      ]
-    }
-    condition {
-      test     = "ForAllValues:StringEquals"
-      variable = "aws:TagKeys"
-      values   = ["RkSignageUserSub"]
-    }
-  }
-  statement {
-    effect  = "Allow"
-    actions = ["sts:TagSession"]
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.id}:role/${var.iam_role_prefix}CognitoGuest"
-      ]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:RequestTag/RkSignageUserSub"
-      values   = ["$${cognito-identity.amazonaws.com:sub}"]
-    }
-    condition {
-      test     = "ForAllValues:StringEquals"
-      variable = "aws:TagKeys"
-      values   = ["RkSignageUserSub"]
-    }
-  }
-}
-resource "aws_iam_role_policy" "unauthenticated-mqtt-iot" {
-  role   = aws_iam_role.unauthenticated-mqtt.name
-  policy = data.aws_iam_policy_document.unauthenticated-iot.json
 }
