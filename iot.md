@@ -3,7 +3,6 @@
 - `{prefix}-control-{rand}-{sub}`
 - `{prefix}-kiosk-{rand}-{sub}`
 
-
 ## topic
 
 - `{prefix}/uplink/all/heartbeat`
