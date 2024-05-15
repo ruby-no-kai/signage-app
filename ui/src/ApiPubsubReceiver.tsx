@@ -44,8 +44,13 @@ function handleBroadcastMutate(
 
 function handleReload(payload: ReloadMessage) {
   const now = dayjs().unix();
+  if (!payload.ts) {
+    console.warn("ignore reload due to ts", payload);
+    return;
+  }
   if (now - payload.ts > 60) {
     console.warn("ignore reload due to ts", payload);
+    return;
   }
   console.log("reloading", payload);
   location.reload();
