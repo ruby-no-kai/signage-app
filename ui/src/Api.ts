@@ -19,8 +19,16 @@ export type ApiPubsubMessage =
   | BroadcastMutateMessage
   | CaptionMessage
   | HeartbeatDownlinkMessage
+  | HeartbeatUplinkMessage
   | ReloadMessage;
 
+export type HeartbeatUplinkMessage = PubsubMessageHeader & {
+  kind: "HeartbeatUplink";
+  from: string;
+  nonce: string;
+  in_reply_to: string;
+  ts: number;
+};
 export type HeartbeatDownlinkMessage = PubsubMessageHeader & {
   kind: "HeartbeatDownlink";
   from: string;

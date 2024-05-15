@@ -2,24 +2,39 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiContext, useApiContext } from "./ApiContext";
 import { PubsubContextDataReady, PubsubMessageHandler } from "./PubsubProvider";
 import { mqtt5 } from "aws-crt/dist.browser/browser";
-import { HeartbeatDownlinkMessage } from "./Api";
+import { ApiPubsubMessage, HeartbeatDownlinkMessage } from "./Api";
 import { ulid } from "ulid";
 import dayjs from "./dayjs";
 import type { Dayjs } from "dayjs";
+import { doReload } from "./reload";
 
 const RANDOM_WINDOW = 12;
+const HEARTBEAT_TIMEOUT = 90;
 
 export const KioskHeartbeat: React.FC = () => {
   const ctx = useApiContext(false);
-  const bootedAt = useMemo(() => dayjs(), []);
-  const cb = useCallback(() => {
-    return;
-  }, [ctx]);
+  const [bootedAt] = useState(dayjs());
+  const [lastHeartbeatAt, setLastHeartbeatAt] = useState<number | undefined>(
+    undefined
+  );
+  const cb = useMemo(() => {
+    return (message, event) => {
+      const payload: ApiPubsubMessage = message.payload;
+      switch (payload.kind) {
+        case "HeartbeatUplink": {
+          setLastHeartbeatAt(dayjs().toDate().getTime());
+          break;
+        }
+      }
+    };
+  }, [setLastHeartbeatAt]);
 
   useEffect(() => {
+    console.log("heartbeat timer", [bootedAt, ctx]);
     if (!ctx) return;
     const pubsub = ctx.pubsub;
     if (pubsub.state !== "ready") return;
+    console.log("heartbeat timer start");
     const fn = () => sendHeartbeat(ctx, pubsub, bootedAt);
     setTimeout(fn, 0);
     const timer = setInterval(() => {
@@ -27,11 +42,22 @@ export const KioskHeartbeat: React.FC = () => {
       setTimeout(fn, randomizedWindow);
     }, 20000);
     return () => clearInterval(timer);
-  }, [bootedAt, ctx, ctx?.pubsub?.state]);
+  }, [bootedAt, ctx?.pubsub?.state]);
 
+  useEffect(() => {
+    console.log("watchdog set");
+    const timer = setTimeout(() => {
+      console.warn("watchdog engage");
+      doReload();
+    }, HEARTBEAT_TIMEOUT * 1000);
+    return () => {
+      console.log("watchdog removed");
+      clearTimeout(timer);
+    };
+  }, [lastHeartbeatAt]);
   return (
     <>
-      <PubsubMessageHandler test={/\/uplink\/heartbeat$/} onMessage={cb} />
+      <PubsubMessageHandler test={/\/uplink\/all\/heartbeat$/} onMessage={cb} />
     </>
   );
 };

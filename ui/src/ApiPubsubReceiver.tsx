@@ -3,8 +3,8 @@ import { useApiContext } from "./ApiContext";
 import { useCallback } from "react";
 import { PubsubMessageHandler } from "./PubsubProvider";
 import { ApiPubsubMessage, BroadcastMutateMessage, ReloadMessage } from "./Api";
-
 import dayjs from "./dayjs";
+import { doReload } from "./reload";
 
 export const ApiPubsubReceiver: React.FC = () => {
   const swr = useSWRConfig();
@@ -52,6 +52,5 @@ function handleReload(payload: ReloadMessage) {
     console.warn("ignore reload due to ts", payload);
     return;
   }
-  console.log("reloading", payload);
-  location.reload();
+  doReload(payload);
 }

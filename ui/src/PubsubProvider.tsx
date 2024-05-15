@@ -219,7 +219,7 @@ export const PubsubMessageHandler: React.FC<{
   useEffect(() => {
     if (ctx.state !== "ready") return;
     return ctx.subscriberBag.subscribe({ test, topic, onMessage });
-  }, [ctx, test, topic, onMessage]);
+  }, [ctx.state, test, topic, onMessage]);
   return <></>;
 };
 
