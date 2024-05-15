@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'aws-sdk-s3'
 #require 'aws-sdk-cloudfront'
+require 'fileutils'
 require 'securerandom'
 require 'digest/md5'
 require 'logger'
@@ -15,6 +16,9 @@ CACHE_CONTROLS = {
   'text/plain; charset=utf-8' => 'public, must-revalidate, max-age=0, s-maxage=0',
   'text/html; charset=utf-8' => 'public, must-revalidate, max-age=0, s-maxage=0',
   'application/json; charset=utf-8' => 'public, must-revalidate, max-age=0, s-maxage=0',
+
+  'image/webp' => 'public, must-revalidate, max-age=0, s-maxage=0',
+  'image/svg+xml' => 'public, must-revalidate, max-age=0, s-maxage=0',
 }
 
 bucket = ARGV[0]
@@ -25,12 +29,22 @@ abort "usage: #$0 bucket" unless bucket
 
 srcdir = File.join(__dir__,"dist")
 
+publicdir = File.join(__dir__,"public")
+Dir[File.join(publicdir, "**", '*')].each do |path|
+  key = "#{path[(publicdir.size + File::SEPARATOR.size)..-1].split(File::SEPARATOR).join('/')}"
+  dst = File.join(srcdir,key)
+  FileUtils.mkdir_p(File.dirname(dst))
+  p [:cp, path, dst]
+  File.write "#{dst}", File.read(path)
+end
+
 indexhtml = File.read(File.join(srcdir,'index.html'))
 %w(
   test
   oauth2callback
   screen
   subscreen
+  hallway
   control/announcements
   control/screens
   control/timers
@@ -65,6 +79,10 @@ Dir[File.join(srcdir, '**', '*')].each do |path|
                    'application/json; charset=utf-8'
                   when /\.woff2$/
                     'font/woff2'
+                  when /\.webp$/
+                    'image/webp'
+                  when /\.svg$/
+                    'image/svg+xml'
                  end
 
     cache_control = CACHE_CONTROLS[content_type]
