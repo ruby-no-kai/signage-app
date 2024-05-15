@@ -49,6 +49,7 @@ function sendHeartbeat(
     ts: now.unix(),
     revision: "TODO",
     booted_at: bootedAt.unix(),
+    path: `${location.pathname}${location.search}`,
   };
   console.log("sendHeartbeat", payload);
   pubsub.client.publish({

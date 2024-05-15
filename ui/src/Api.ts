@@ -28,6 +28,7 @@ export type HeartbeatDownlinkMessage = PubsubMessageHeader & {
   ts: number;
   revision: string;
   booted_at: number;
+  path: string;
 };
 
 export type TrackSlug = string;
@@ -375,6 +376,7 @@ export type Kiosk = {
   revision: string;
   last_boot_at: number;
   last_heartbeat_at: number;
+  path: string;
   updated_at: number;
   pk?: string;
   invalid?: string[];
@@ -408,6 +410,7 @@ function dynamodbKiosk(possibleItem: Record<string, AttributeValue>): Kiosk {
     last_boot_at: Number(possibleItem?.last_boot_at?.N ?? 0),
     last_heartbeat_at: Number(possibleItem?.last_heartbeat_at?.N ?? 0),
     updated_at: Number(possibleItem?.updated_at?.N ?? 0),
+    path: possibleItem.path?.S ?? "unknown",
     pk,
     invalid,
   };

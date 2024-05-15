@@ -106,6 +106,7 @@ export const ControlKioskView: React.FC<{
         <code>{kiosk.id}</code>
       </Text>
       <Text>Running: {kiosk.revision}</Text>
+      <Text>Path: {kiosk.path}</Text>
       <Text>
         Heartbeat: {dayjs.unix(kiosk.last_heartbeat_at).format()}, Boot:{" "}
         {dayjs.unix(kiosk.last_boot_at).format()}

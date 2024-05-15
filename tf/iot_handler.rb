@@ -41,6 +41,7 @@ module IotHandler
       last_boot_at: event.fetch('booted_at'),
       last_heartbeat_at: event.fetch('ts'),
       revision: event.fetch('revision'),
+      path: event['path'],
     }
 
     dynamodb.update_item(
