@@ -2,7 +2,9 @@ import { useSWRConfig } from "swr";
 import { useApiContext } from "./ApiContext";
 import { useCallback } from "react";
 import { PubsubMessageHandler } from "./PubsubProvider";
-import { ApiPubsubMessage, BroadcastMutateMessage } from "./Api";
+import { ApiPubsubMessage, BroadcastMutateMessage, ReloadMessage } from "./Api";
+
+import dayjs from "./dayjs";
 
 export const ApiPubsubReceiver: React.FC = () => {
   const swr = useSWRConfig();
@@ -15,13 +17,17 @@ export const ApiPubsubReceiver: React.FC = () => {
           handleBroadcastMutate(swr, payload);
           break;
         }
+        case "Reload": {
+          handleReload(payload);
+          break;
+        }
       }
     },
     [swr, ctx]
   );
   return (
     <>
-      <PubsubMessageHandler test={/uplink\/all\/updates$/} onMessage={cb} />
+      <PubsubMessageHandler test={/\/uplink\/.+$/} onMessage={cb} />
     </>
   );
 };
@@ -34,4 +40,13 @@ function handleBroadcastMutate(
   payload.urls.forEach((v) => {
     swr.mutate(v);
   });
+}
+
+function handleReload(payload: ReloadMessage) {
+  const now = dayjs().unix();
+  if (now - payload.ts > 60) {
+    console.warn("ignore reload due to ts", payload);
+  }
+  console.log("reloading", payload);
+  location.reload();
 }

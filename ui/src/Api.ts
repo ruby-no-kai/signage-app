@@ -18,9 +18,17 @@ import { PubsubMessageHeader, PubsubMessagePayload } from "./PubsubProvider";
 export type ApiPubsubMessage =
   | BroadcastMutateMessage
   | CaptionMessage
-  | PingMessage;
+  | HeartbeatDownlinkMessage
+  | ReloadMessage;
 
-export type PingMessage = PubsubMessageHeader & { kind: "ping" };
+export type HeartbeatDownlinkMessage = PubsubMessageHeader & {
+  kind: "HeartbeatDownlink";
+  from: string;
+  nonce: string;
+  ts: number;
+  revision: string;
+  booted_at: number;
+};
 
 export type TrackSlug = string;
 
@@ -365,6 +373,7 @@ export type Kiosk = {
   tenant: string;
   name: string;
   revision: string;
+  last_boot_at: number;
   last_heartbeat_at: number;
   updated_at: number;
   pk?: string;
@@ -396,6 +405,7 @@ function dynamodbKiosk(possibleItem: Record<string, AttributeValue>): Kiosk {
     tenant,
     name: possibleItem.name?.S ?? "unknown",
     revision: possibleItem.revision?.S ?? "unknown",
+    last_boot_at: Number(possibleItem?.last_boot_at?.N ?? 0),
     last_heartbeat_at: Number(possibleItem?.last_heartbeat_at?.N ?? 0),
     updated_at: Number(possibleItem?.updated_at?.N ?? 0),
     pk,
@@ -423,7 +433,7 @@ async function broadcastMutate(ctx: ApiContext, urls: string[]) {
   if (ctx.pubsub.state !== "ready") return;
   const payload: BroadcastMutateMessage = {
     kind: "BroadcastMutate",
-    from: ctx.pubsub.id,
+    from: ctx.pubsub.id.identity,
     nonce: ulid(),
     urls,
   };
@@ -433,6 +443,13 @@ async function broadcastMutate(ctx: ApiContext, urls: string[]) {
     payload: JSON.stringify(payload),
   });
 }
+
+export type ReloadMessage = PubsubMessageHeader & {
+  kind: "Reload";
+  ts: number;
+  from: string;
+  nonce: string;
+};
 
 export const Api = {
   useConfig() {
