@@ -1,5 +1,4 @@
 import React, { useState, useId } from "react";
-import loadable from "@loadable/component";
 
 import {
   Box,

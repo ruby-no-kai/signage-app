@@ -43,7 +43,7 @@ export const Colors = {
 };
 
 export const Fonts = {
-  heading: "Montserrat",
+  heading: "Poppins",
   body: "Roboto",
 };
 

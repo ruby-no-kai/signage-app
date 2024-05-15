@@ -48,6 +48,7 @@ indexhtml = File.read(File.join(srcdir,'index.html'))
   control/announcements
   control/screens
   control/timers
+  control/kiosks
 ).each do |path|
   dst = File.join(srcdir,path)
   FileUtils.mkdir_p(File.dirname(dst))

@@ -403,7 +403,7 @@ function dynamodbKiosk(possibleItem: Record<string, AttributeValue>): Kiosk {
   return {
     id,
     tenant,
-    name: possibleItem.name?.S ?? "unknown",
+    name: possibleItem.name?.S ?? possibleItem[":name"]?.S ?? "unknown",
     revision: possibleItem.revision?.S ?? "unknown",
     last_boot_at: Number(possibleItem?.last_boot_at?.N ?? 0),
     last_heartbeat_at: Number(possibleItem?.last_heartbeat_at?.N ?? 0),
@@ -819,16 +819,16 @@ export const Api = {
   useKiosks(aws: ApiContext | null) {
     return useSWR<Kiosk[]>(aws ? `/.virtual/kiosks` : null, async () => {
       if (!aws) throw "aws is null";
-      const pk = `${aws.config.tenant}::kiosks`;
+      const sk = `${aws.config.tenant}::kiosks`;
       const paginator = paginateQuery(
         { client: aws.dynamodb },
         {
           TableName: aws.config.dynamodb_table_name,
           IndexName: "inverted",
           ExpressionAttributeValues: {
-            ":pk": { S: pk },
+            ":sk": { S: sk },
           },
-          KeyConditionExpression: "pk = :pk",
+          KeyConditionExpression: "sk = :sk",
         }
       );
       const possibleItems: Record<string, AttributeValue>[] = [];
@@ -841,7 +841,7 @@ export const Api = {
 
   async deleteKiosk(
     aws: ApiContext,
-    input: Pick<Kiosk, "id"> & Pick<Partial<Kiosk>, "tenant">
+    input: Pick<Kiosk, "id"> & Pick<Kiosk, "tenant">
   ) {
     const sk = `${input.tenant ?? aws.config.tenant}::kiosks`;
     const pk = `${sk}:${input.id}`;
@@ -853,7 +853,7 @@ export const Api = {
     );
     console.log("deleteKiosk", resp);
     mutate("/.virtual/kiosks");
-    broadcastMutate(aws, ["/.virtual/kiosks"]);
+    broadcastMutate(aws, ["/.virtual/kiosks", "/.virtual/current_kiosk"]);
     return null;
   },
 
@@ -865,17 +865,19 @@ export const Api = {
         TableName: aws.config.dynamodb_table_name,
         Key: { pk: { S: pk }, sk: { S: sk } },
         ReturnValues: "ALL_NEW",
-        UpdateExpression: `set #tenant = #tenant, #id = #id, #name = :name,  #updated_at = :updated_at`,
+        UpdateExpression: `set #tenant = #tenant, #id = #id, #name = :name,  #updated_at = :updated_at, #oops_name = :oops_name`,
         ExpressionAttributeNames: {
           "#tenant": "tenant",
           "#id": "id",
-          "#name": ":name",
+          "#name": "name", // FIXME
+          "#oops_name": ":name", // FIXME
           "#updated_at": "updated_at",
         },
         ExpressionAttributeValues: {
           ":tenant": { S: input.tenant },
           ":id": { S: input.id },
           ":name": { S: input.name },
+          ":oops_name": { NULL: true },
           ":updated_at": { N: dayjs().unix().toString() },
         },
       })
@@ -884,6 +886,21 @@ export const Api = {
     mutate("/.virtual/kiosks");
     broadcastMutate(aws, ["/.virtual/kiosks"]);
     return null;
+  },
+
+  async reloadKiosk(ctx: ApiContext, input: Pick<Kiosk, "id">) {
+    if (ctx.pubsub.state !== "ready") throw "pubsub not ready";
+    const payload: ReloadMessage = {
+      kind: "Reload",
+      ts: dayjs().unix(),
+      from: ctx.identityId,
+      nonce: ulid(),
+    };
+    await ctx.pubsub.client.publish({
+      qos: mqtt5.QoS.AtLeastOnce,
+      topicName: `${ctx.config.iot_topic_prefix}/uplink/kiosk=${input.id}/updates`,
+      payload: JSON.stringify(payload),
+    });
   },
 };
 

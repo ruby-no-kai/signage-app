@@ -56,11 +56,11 @@ export const PubsubProvider: React.FC<{ children: ReactNode }> = ({
               subscriptions: [
                 {
                   qos: mqtt5.QoS.AtLeastOnce,
-                  topicFilter: `${aws.config.iot_topic_prefix}/uplink/all/heartbeat`,
+                  topicFilter: `${aws.config.iot_topic_prefix}/uplink/all/#`,
                 },
                 {
                   qos: mqtt5.QoS.AtLeastOnce,
-                  topicFilter: `${aws.config.iot_topic_prefix}/uplink/all/updates`,
+                  topicFilter: `${aws.config.iot_topic_prefix}/uplink/kiosk=${aws.identityId}/#`,
                 },
               ],
             }}

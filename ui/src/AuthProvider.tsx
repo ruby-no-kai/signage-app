@@ -65,7 +65,7 @@ function useValue(
 
   let authStatus: CognitoIdSource = undefined;
   if (config && !auth.isLoading && !auth.error) {
-    if (auth.user && auth.user.id_token) {
+    if (auth.user && auth.user.id_token && !auth.user.expired) {
       authStatus = {
         anonymous: false,
         sub: auth.user.profile.sub,

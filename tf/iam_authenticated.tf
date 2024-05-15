@@ -137,6 +137,7 @@ data "aws_iam_policy_document" "authenticated" {
     actions = ["iot:Publish"]
     resources = [
       "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/uplink/all/updates",
+      "arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:topic/${var.name_prefix}/uplink/kiosk=*/updates",
     ]
   }
   statement {
