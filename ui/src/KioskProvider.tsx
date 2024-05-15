@@ -24,7 +24,7 @@ export const KioskProvider: React.FC<
   return (
     <KioskContext.Provider value={props}>
       <KioskLogin />
-      {/* <KioskHeartbeat /> */}
+      <KioskHeartbeat />
       <>{children}</>
     </KioskContext.Provider>
   );
