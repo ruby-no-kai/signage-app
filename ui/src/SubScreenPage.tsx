@@ -14,6 +14,7 @@ import { useLightningTimer } from "./LightningTimer";
 import { SubScreenCaptionView } from "./SubScreenCaptionView";
 import { SubScreenLightningTimerView } from "./SubScreenLightningTimerView";
 import { SubScreenAnnouncementsView } from "./SubScreenAnnouncementsView";
+import { SubScreenChatView } from "./SubScreenChatView";
 
 export const SubScreenPage: React.FC = () => {
   return (
@@ -62,7 +63,7 @@ export const SubScreenInner: React.FC = () => {
         {infoMode === "caption" ? <SubScreenCaptionView track={track} /> : null}
       </Box>
       <Box w="100%" flexGrow={2}>
-        {/*<SubScreenChatView track={track} />*/}
+        <SubScreenChatView track={track} />
       </Box>
     </Flex>
   );

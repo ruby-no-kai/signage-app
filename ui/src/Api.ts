@@ -20,7 +20,8 @@ export type ApiPubsubMessage =
   | CaptionMessage
   | HeartbeatDownlinkMessage
   | HeartbeatUplinkMessage
-  | ReloadMessage;
+  | ReloadMessage
+  | ChatMessage;
 
 export type HeartbeatUplinkMessage = PubsubMessageHeader & {
   kind: "HeartbeatUplink";
@@ -218,36 +219,30 @@ function dynamodbConferenceSession(
   };
 }
 
-// export type ChatMessage = {
-//   track: TrackSlug;
-//   sender: ChatSender;
-//   id: string;
-//   timestamp: number; // millis
-//   redacted: boolean;
-// };
-//
-// export type ChatCaption = {
-//   result_id: string;
-//   is_partial: boolean;
-//   transcript: string;
-// };
-//
-// // XXX: Determined and given at ChatSession
-// export type ChatSenderFlags = {
-//   isAdmin?: boolean;
-//   isAnonymous?: boolean;
-//   isStaff?: boolean;
-//   isSpeaker?: boolean;
-//   isCommitter?: boolean;
-// };
+export type ChatMessage = {
+  kind: "Chat";
+  track: TrackSlug;
+  id: string;
+  timestamp: number; // millis
+  sender: ChatSender;
+  content: string;
+  redacted: boolean;
+};
 
-export type ChatHandle = string;
+export type ChatSenderFlags = {
+  //isAdmin?: boolean;
+  //isAnonymous?: boolean;
+  isStaff?: boolean;
+  isSpeaker?: boolean;
+  isCommitter?: boolean;
+};
 
-// export interface ChatSender extends ChatSenderFlags {
-//   handle: ChatHandle;
-//   name: string;
-//   version: string;
-// }
+export interface ChatSender {
+  id: string;
+  name: string;
+  avatar_url: string;
+  flags: ChatSenderFlags;
+}
 
 export type ConferenceSponsorshipPlan = "ruby" | "platinum" | "gold" | "silver";
 export type ConferenceSponsorship = {

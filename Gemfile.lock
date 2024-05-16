@@ -27,6 +27,9 @@ GEM
       aws-sdk-core (~> 3, >= 3.194.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.8)
+    aws-sdk-secretsmanager (1.93.0)
+      aws-sdk-core (~> 3, >= 3.193.0)
+      aws-sigv4 (~> 1.1)
     aws-sdk-transcribestreamingservice (1.58.0)
       aws-sdk-core (~> 3, >= 3.193.0)
       aws-sigv4 (~> 1.1)
@@ -78,6 +81,7 @@ DEPENDENCIES
   aws-sdk-iotdataplane
   aws-sdk-medialive
   aws-sdk-s3
+  aws-sdk-secretsmanager
   aws-sdk-transcribestreamingservice
   discordrb
   http-2

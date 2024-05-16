@@ -37,7 +37,7 @@ export const TrackCaption: React.FC<{ track: TrackSlug }> = ({ track }) => {
       const payload: ApiPubsubMessage = message.payload as ApiPubsubMessage; // XXX:
       switch (payload.kind) {
         case "Caption": {
-          const newCaptions = [...captions];
+          const newCaptions = captions;
           const existingCaptionIdx = newCaptions.findIndex(
             (c) => payload.sequence_id === c.sequence_id
           );
@@ -56,7 +56,8 @@ export const TrackCaption: React.FC<{ track: TrackSlug }> = ({ track }) => {
           newCaptions.sort((a, b) => a.sequence_id - b.sequence_id);
 
           if (newCaptions.length > CAPTION_BACKTRACK) {
-            setCaptions(newCaptions.slice(1));
+            newCaptions.shift();
+            setCaptions(newCaptions);
           } else {
             setCaptions(newCaptions);
           }

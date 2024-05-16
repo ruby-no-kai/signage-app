@@ -58,6 +58,14 @@ data "aws_iam_policy_document" "Captioner" {
   #}
 
   statement {
+    effect  = "Allow"
+    actions = ["secretsmanager:GetSecretValue"]
+    resources = [
+      aws_secretsmanager_secret.discord.arn,
+    ]
+  }
+
+  statement {
     effect    = "Allow"
     actions   = ["iot:Connect"]
     resources = ["arn:aws:iot:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:client/${var.name_prefix}-captioner-*"]
