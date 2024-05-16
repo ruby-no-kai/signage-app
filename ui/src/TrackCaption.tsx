@@ -92,13 +92,15 @@ export const TrackCaption: React.FC<{ track: TrackSlug }> = ({ track }) => {
     );
   }, [apictx?.config?.iot_topic_prefix, track]);
 
+  const lastcaption =
+    captions.length > 0 ? captions[captions.length - 1] : undefined;
   React.useEffect(() => {
     console.debug("caption autoscroll chance");
     if (!box.current) return;
     console.debug("caption autoscroll do");
     const el = box.current;
     el.scrollTop = el.scrollHeight;
-  }, [box, captions]);
+  }, [box, captions, lastcaption?.sequence_id, lastcaption?.round]);
 
   if (!apictx) return <Skeleton />;
 

@@ -73,7 +73,7 @@ function sendHeartbeat(
     from: ctx.identityId,
     nonce: ulid(now.toDate().getTime()),
     ts: now.unix(),
-    revision: "TODO",
+    revision: "TODO--05161342",
     booted_at: bootedAt.unix(),
     path: `${location.pathname}${location.search}`,
   };

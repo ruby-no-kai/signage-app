@@ -64,7 +64,7 @@ export const ChatHistoryView: React.FC<Props> = ({ messages }) => {
     if (!box) return;
     console.log("autoscroll do");
     box.scrollTop = box.scrollHeight;
-  }, [box, autoscrollEnabled, messages]);
+  }, [box, autoscrollEnabled, messages, latestMessageAt]);
 
   //if (loading) {
   //  return (
