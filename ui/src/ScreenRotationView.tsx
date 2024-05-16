@@ -45,9 +45,10 @@ export const ScreenRotationView: React.FC = () => {
       );
       const filteredAnns = venueAnnouncements.filter(
         (v) =>
-          v.applicable_kiosks === undefined ||
-          v.applicable_kiosks === null ||
-          v.applicable_kiosks.indexOf(kioskProps.kind) >= 0
+          (v.applicable_kiosks === undefined ||
+            v.applicable_kiosks === null ||
+            v.applicable_kiosks.indexOf(kioskProps.kind) >= 0) &&
+          v.enabled
       );
       retval.push(
         ...filteredAnns.map(
