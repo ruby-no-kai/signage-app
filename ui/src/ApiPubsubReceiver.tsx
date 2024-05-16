@@ -2,12 +2,19 @@ import { useSWRConfig } from "swr";
 import { useApiContext } from "./ApiContext";
 import { useCallback } from "react";
 import { PubsubMessageHandler } from "./PubsubProvider";
-import { ApiPubsubMessage, BroadcastMutateMessage, ReloadMessage } from "./Api";
+import {
+  ApiPubsubMessage,
+  BroadcastMutateMessage,
+  IdentMessage,
+  ReloadMessage,
+} from "./Api";
 import dayjs from "./dayjs";
 import { doReload } from "./reload";
+import { useToast } from "@chakra-ui/react";
 
 export const ApiPubsubReceiver: React.FC = () => {
   const swr = useSWRConfig();
+  const toast = useToast();
   const ctx = useApiContext(false);
   const cb = useCallback(
     (message, event) => {
@@ -21,9 +28,12 @@ export const ApiPubsubReceiver: React.FC = () => {
           handleReload(payload);
           break;
         }
+        case "Ident": {
+          handleIdent(payload, toast);
+        }
       }
     },
-    [swr, ctx]
+    [swr, toast, ctx]
   );
   return (
     <>
@@ -53,4 +63,18 @@ function handleReload(payload: ReloadMessage) {
     return;
   }
   doReload(payload);
+}
+
+function handleIdent(
+  payload: IdentMessage,
+  toast: ReturnType<typeof useToast>
+) {
+  toast({
+    title: `Ident ${payload.nonce}`,
+    description: `from ${payload.from}`,
+    status: "success",
+    duration: 2000,
+    isClosable: true,
+    position: "top",
+  });
 }

@@ -222,6 +222,25 @@ const ControlKioskForm: React.FC<{
     }
     setIsRequesting(false);
   };
+  const onIdent = async () => {
+    if (!aws) return;
+    if (isRequesting) return;
+    setIsRequesting(true);
+
+    try {
+      const resp = await Api.identKiosk(aws, target);
+      toast({
+        title: "Ident Command sent",
+        description: "",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast(errorToToast(e));
+    }
+    setIsRequesting(false);
+  };
 
   return (
     <>
@@ -268,6 +287,16 @@ const ControlKioskForm: React.FC<{
                 onClick={onReload}
               >
                 Reload
+              </Button>
+              <Button
+                colorScheme="green"
+                mr={3}
+                form={formID}
+                isLoading={isRequesting}
+                isDisabled={!aws}
+                onClick={onIdent}
+              >
+                Ident
               </Button>
             </FormControl>
           </ModalFooter>

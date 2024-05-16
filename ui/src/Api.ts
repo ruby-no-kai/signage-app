@@ -21,6 +21,7 @@ export type ApiPubsubMessage =
   | HeartbeatDownlinkMessage
   | HeartbeatUplinkMessage
   | ReloadMessage
+  | IdentMessage
   | ChatMessage;
 
 export type HeartbeatUplinkMessage = PubsubMessageHeader & {
@@ -455,6 +456,12 @@ export type ReloadMessage = PubsubMessageHeader & {
   ts: number;
   from: string;
   nonce: string;
+};
+
+export type IdentMessage = PubsubMessageHeader & {
+  kind: "Ident";
+  nonce: string;
+  ts: number;
 };
 
 export const Api = {
@@ -905,6 +912,20 @@ export const Api = {
     await ctx.pubsub.client.publish({
       qos: mqtt5.QoS.AtLeastOnce,
       topicName: `${ctx.config.iot_topic_prefix}/uplink/kiosk=${input.id}/updates`,
+      payload: JSON.stringify(payload),
+    });
+  },
+  async identKiosk(ctx: ApiContext, target: Pick<Kiosk, "id">) {
+    if (ctx.pubsub.state !== "ready") return;
+    const payload: IdentMessage = {
+      kind: "Ident",
+      from: ctx.identityId,
+      nonce: ulid(),
+      ts: dayjs().unix(),
+    };
+    await ctx.pubsub.client.publish({
+      qos: mqtt5.QoS.AtLeastOnce,
+      topicName: `${ctx.config.iot_topic_prefix}/uplink/kiosk=${target.id}/updates`,
       payload: JSON.stringify(payload),
     });
   },
