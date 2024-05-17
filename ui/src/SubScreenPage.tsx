@@ -52,15 +52,25 @@ export const SubScreenInner: React.FC = () => {
   })();
 
   return (
-    <Flex h="100%" w="100%" justify="space-between" direction="column">
+    <Flex
+      h="100%"
+      w="100%"
+      justify="space-between"
+      direction="column"
+      overflow="hidden"
+    >
+      {infoMode !== "caption" ? (
+        <Box w="100%" h="30%" overflow="hidden">
+          {infoMode === "announcement" ? (
+            <SubScreenAnnouncementsView track={track} />
+          ) : null}
+          {infoMode === "lightning_timer" && timer ? (
+            <SubScreenLightningTimerView timer={timer} />
+          ) : null}
+        </Box>
+      ) : null}
       <Box w="100%" h="30%" overflow="hidden">
-        {infoMode === "announcement" ? (
-          <SubScreenAnnouncementsView track={track} />
-        ) : null}
-        {infoMode === "lightning_timer" && timer ? (
-          <SubScreenLightningTimerView timer={timer} />
-        ) : null}
-        {infoMode === "caption" ? <SubScreenCaptionView track={track} /> : null}
+        <SubScreenCaptionView track={track} />
       </Box>
       <Box w="100%" flexGrow={2}>
         <SubScreenChatView track={track} />
