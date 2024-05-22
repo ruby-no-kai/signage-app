@@ -15,6 +15,7 @@ import { SubScreenCaptionView } from "./SubScreenCaptionView";
 import { SubScreenLightningTimerView } from "./SubScreenLightningTimerView";
 import { SubScreenAnnouncementsView } from "./SubScreenAnnouncementsView";
 import { SubScreenChatView } from "./SubScreenChatView";
+import { SubScreenChatHeader } from "./SubScreenChatHeader";
 
 export const SubScreenPage: React.FC = () => {
   return (
@@ -71,6 +72,9 @@ export const SubScreenInner: React.FC = () => {
       ) : null}
       <Box w="100%" h="30%" overflow="hidden">
         <SubScreenCaptionView track={track} />
+      </Box>
+      <Box w="100%" h="10%" overflow="hidden">
+        <SubScreenChatHeader />
       </Box>
       <Box w="100%" flexGrow={2}>
         <SubScreenChatView track={track} />

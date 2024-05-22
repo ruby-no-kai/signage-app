@@ -28,7 +28,7 @@ export const ChatMessageView: React.FC<Props> = ({ message }) => {
       <ChatMessageAvatar author={message.sender} />
       <Box ml="8px" flexGrow={1} flexShrink={0} flexBasis={0}>
         <ChatMessageAuthor author={message.sender} />
-        <Text p={0} m={0} ml={1} fontSize="sm" as="span">
+        <Text p={0} m={0} ml={1} fontSize="18px" as="span">
           {React.useMemo(
             () =>
               message.redacted ? (
@@ -123,7 +123,7 @@ const ChatAuthorName: React.FC<{ author: ChatSender; fg: string }> = ({
   fg,
 }) => {
   const fontWeight = "bold";
-  const fontSize = "sm";
+  const fontSize = "13px";
 
   return (
     <Text as="span" color={fg} fontWeight={fontWeight} fontSize={fontSize}>
