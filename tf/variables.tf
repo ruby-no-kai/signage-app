@@ -81,6 +81,11 @@ variable "manage_config_in_s3" {
   default = true
 }
 
+variable "github_actions_subs" {
+  type    = set(string)
+  default = []
+}
+
 locals {
   callback_urls = toset(setunion(var.callback_urls, ["https://${var.app_domain}/oauth2callback"]))
 }
