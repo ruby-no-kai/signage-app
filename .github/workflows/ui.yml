@@ -1,0 +1,40 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: prd
+      url: https://signage.rubykaigi.org
+    concurrency:
+      group: prd
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: "ap-northeast-1"
+          role-skip-session-tagging: true
+          role-to-assume: "arn:aws:iam::005216166247:role/SignagePrdActions"
+          mask-aws-account-id: 'false' # only string works
+
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+        working-directory: './ui'
+      - run: npm run build
+        working-directory: './ui'
+      - run: bundle exec ruby deploy.rb signage-prd-pub
+        working-directory: './ui'
