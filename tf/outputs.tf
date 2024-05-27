@@ -43,7 +43,7 @@ locals {
   }
 
   captioner_medialive_settings = {
-    for k, _p in var.captioner_channels :
+    for k, _p in(var.captioner_enabled ? var.captioner_channels : {}) :
     k => {
       public_outbound_ip = data.aws_eip.medialive-channel-public-outbound[k].public_ip
       private_input = {

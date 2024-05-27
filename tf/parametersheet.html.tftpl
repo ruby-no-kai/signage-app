@@ -12,11 +12,12 @@
 <body>
 <h1>RubyKaigi RTMP Parameters</h1>
 
-<p>Main の URL とストリームキーが通常利用する環境、Backup がバックアップとして用意している環境です。指示がない限り Main へ配信を行ってください。なお、Main には会場ネットワークからでしか接続できません。</p>
+<p>Main の URL と Stream Key が通常利用する環境、Backup がバックアップとして用意している環境です。障害等による指示がない限り Main へ配信を行い、<b>Backup へは配信をしないでください (帯域の節約のため)</b>。なお、Main には会場ネットワークに限って接続できます。</p>
+<p>Stream Key は一部のエンコーダーでは [ストリーム名] として設定項目が用意されている場合があります。</p>
 
 %{ for channel_name, settings in medialive_settings ~}
 <hr>
-  <h2><code>${channel_name}</code></h2>
+  <h2><code>Channel: ${channel_name}</code></h2>
 
   <h3>Main</h3>
   <p>
