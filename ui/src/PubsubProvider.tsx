@@ -6,16 +6,17 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import useSWR from "swr";
 
 import { auth, iot, mqtt5 } from "aws-iot-device-sdk-v2/lib/browser";
 import type mqtt5_packet from "aws-crt/dist.browser/common/mqtt5_packet";
 import { ulid } from "ulid";
-import { AwsCredentialIdentity, Client, Provider } from "@aws-sdk/types";
+import { AwsCredentialIdentity, Provider } from "@aws-sdk/types";
 
 import { AuthContext, AwsClients } from "./AuthProvider";
 import { toUtf8 } from "@smithy/util-utf8";
 import { makeWeakCallback } from "./weakcallback";
+
+export type Mqtt5MessageReceivedEvent = mqtt5.MessageReceivedEvent;
 
 export type PubsubContextDataReady = {
   state: "ready";
@@ -134,7 +135,7 @@ export type PubsubMessagePayload = PubsubMessageHeader &
   Record<string, unknown>;
 
 function tryMessageFromEvent(
-  event: mqtt5.MessageReceivedEvent
+  event: Mqtt5MessageReceivedEvent
 ): null | PubsubMessage {
   try {
     const payload = event.message.payload
@@ -156,7 +157,7 @@ type MessageSubscriber = {
   active: boolean;
   test?: RegExp;
   topic?: string;
-  fn: (message: PubsubMessage, event: mqtt5.MessageReceivedEvent) => boolean; // weakCallback
+  fn: (message: PubsubMessage, event: Mqtt5MessageReceivedEvent) => boolean; // weakCallback
 };
 class SubscriberBag {
   list: MessageSubscriber[];
@@ -170,7 +171,7 @@ class SubscriberBag {
     topic?: string;
     onMessage: (
       message: PubsubMessage,
-      event: mqtt5.MessageReceivedEvent
+      event: Mqtt5MessageReceivedEvent
     ) => void;
   }) {
     const fn = makeWeakCallback(options.onMessage);
@@ -189,9 +190,13 @@ class SubscriberBag {
       console.log("SubscriberBag deactivated", subscription);
     };
   }
-  deliverToMessageHandler(event: mqtt5.MessageReceivedEvent) {
+  deliverToMessageHandler(event: Mqtt5MessageReceivedEvent) {
     const message = tryMessageFromEvent(event);
-    console.log("mqtt5/SubscriberBag/Message", message.topic, message.payload);
+    console.log(
+      "mqtt5/SubscriberBag/Message",
+      message?.topic,
+      message?.payload
+    );
     if (!message) {
       console.warn("mqtt5/SubscriberBag/Message/Invalid", event);
       return;
@@ -210,10 +215,7 @@ class SubscriberBag {
 export const PubsubMessageHandler: React.FC<{
   test?: RegExp;
   topic?: string;
-  onMessage: (
-    message: PubsubMessage,
-    event: mqtt5.MessageReceivedEvent
-  ) => void;
+  onMessage: (message: PubsubMessage, event: Mqtt5MessageReceivedEvent) => void;
 }> = ({ test, topic, onMessage }) => {
   const ctx = usePubsubLocal();
   useEffect(() => {
@@ -227,7 +229,7 @@ export type ClientIdData = { mqtt: string; identity: string };
 function makeClientId(aws: AwsClients): ClientIdData {
   return {
     mqtt: `${aws.config.iot_topic_prefix}-u-${ulid()}-${aws.identityId}`,
-    identityId: aws.identityId,
+    identity: aws.identityId,
   };
 }
 
@@ -298,7 +300,7 @@ function createMqttClient(
     console.error("mqtt5 error", error);
   });
 
-  client.on("messageReceived", (event: mqtt5.MessageReceivedEvent): void => {
+  client.on("messageReceived", (event: Mqtt5MessageReceivedEvent): void => {
     console.debug("mqtt5 message event", event);
     if (event.message.payload) {
       console.debug(

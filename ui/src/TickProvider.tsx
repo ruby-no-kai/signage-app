@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import dayjs from "./dayjs";
-import type { Dayjs } from "dayjs";
+import type { Dayjs } from "./dayjs";
 import { useSearchParams } from "react-router-dom";
 
 type TickContextData = { tick: Dayjs };

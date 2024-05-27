@@ -12,7 +12,7 @@ import {
 import { ApiPubsubMessage, CaptionMessage, TrackSlug } from "./Api";
 
 export type Props = {
-  track: Track;
+  track: TrackSlug;
   onUnsubscribe: () => void;
   h?: string;
 };

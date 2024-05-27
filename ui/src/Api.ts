@@ -24,6 +24,16 @@ export type ApiPubsubMessage =
   | IdentMessage
   | ChatMessage;
 
+export function guardApiPubsubMessage(
+  message: PubsubMessagePayload
+): ApiPubsubMessage | undefined {
+  if (!message.kind) {
+    console.warn("guardApiPubsubMessage", message);
+    return undefined;
+  }
+  return message as ApiPubsubMessage; // XXX:
+}
+
 export type HeartbeatUplinkMessage = PubsubMessageHeader & {
   kind: "HeartbeatUplink";
   from: string;

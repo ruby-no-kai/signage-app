@@ -273,6 +273,7 @@ const NewTimerForm: React.FC<{
         starts_at: now.unix(),
         ends_at: now.unix() + data.seconds,
         expires_at: now.unix() + data.seconds + EXPIRY,
+        tick: null,
       };
       console.log("newTimer", newTimer);
       await Api.updateScreenControl(apictx, {

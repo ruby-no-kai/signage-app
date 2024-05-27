@@ -1,8 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ApiContext, useApiContext } from "./ApiContext";
-import { PubsubContextDataReady, PubsubMessageHandler } from "./PubsubProvider";
+import {
+  Mqtt5MessageReceivedEvent,
+  PubsubContextDataReady,
+  PubsubMessage,
+  PubsubMessageHandler,
+} from "./PubsubProvider";
 import { mqtt5 } from "aws-crt/dist.browser/browser";
-import { ApiPubsubMessage, HeartbeatDownlinkMessage } from "./Api";
+import {
+  ApiPubsubMessage,
+  HeartbeatDownlinkMessage,
+  guardApiPubsubMessage,
+} from "./Api";
 import { ulid } from "ulid";
 import dayjs from "./dayjs";
 import type { Dayjs } from "dayjs";
@@ -18,8 +27,10 @@ export const KioskHeartbeat: React.FC = () => {
     undefined
   );
   const cb = useMemo(() => {
-    return (message, event) => {
-      const payload: ApiPubsubMessage = message.payload;
+    return (message: PubsubMessage, event: Mqtt5MessageReceivedEvent) => {
+      const payload = guardApiPubsubMessage(message.payload);
+      if (!payload) return;
+
       switch (payload.kind) {
         case "HeartbeatUplink": {
           setLastHeartbeatAt(dayjs().toDate().getTime());

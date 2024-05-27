@@ -1,12 +1,17 @@
 import { useSWRConfig } from "swr";
 import { useApiContext } from "./ApiContext";
 import { useCallback } from "react";
-import { PubsubMessageHandler } from "./PubsubProvider";
+import {
+  PubsubMessageHandler,
+  Mqtt5MessageReceivedEvent,
+  PubsubMessage,
+} from "./PubsubProvider";
 import {
   ApiPubsubMessage,
   BroadcastMutateMessage,
   IdentMessage,
   ReloadMessage,
+  guardApiPubsubMessage,
 } from "./Api";
 import dayjs from "./dayjs";
 import { doReload } from "./reload";
@@ -17,8 +22,9 @@ export const ApiPubsubReceiver: React.FC = () => {
   const toast = useToast();
   const ctx = useApiContext(false);
   const cb = useCallback(
-    (message, event) => {
-      const payload: ApiPubsubMessage = message.payload;
+    (message: PubsubMessage, event: Mqtt5MessageReceivedEvent) => {
+      const payload = guardApiPubsubMessage(message.payload);
+      if (!payload) return;
       switch (payload.kind) {
         case "BroadcastMutate": {
           handleBroadcastMutate(swr, payload);

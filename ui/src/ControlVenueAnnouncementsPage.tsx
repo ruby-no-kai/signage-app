@@ -222,9 +222,10 @@ const ControlVenueAnnouncementForm: React.FC<{
   const { isOpen, onOpen, onClose } = disclosureProps ?? defaultDisclosure;
   const [isRequesting, setIsRequesting] = React.useState<boolean>(false);
   const { data } = Api.useVenueAnnouncements(aws);
-  const nextOrder = (data?.slice(-1)?.order_index ?? 0) + 1;
+  const nextOrder =
+    ((data ? data[data.length - 1] : undefined)?.order_index ?? 0) + 1;
 
-  const { register, handleSubmit, reset, watch, setValue } = useForm<
+  const { register, handleSubmit } = useForm<
     Omit<VenueAnnouncementInput, "applicable_kiosks"> & KioskKindTicks
   >({
     defaultValues: target ?? {

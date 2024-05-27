@@ -1,7 +1,8 @@
 import React from "react";
 import dayjs from "./dayjs";
+import type { Dayjs } from "./dayjs";
 
-import { HStack, VStack, Flex, Box, Text } from "@chakra-ui/react";
+import { HStack, VStack, Text } from "@chakra-ui/react";
 import { useTick } from "./TickProvider";
 
 const TIME_ZONES = [

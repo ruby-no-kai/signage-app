@@ -93,14 +93,13 @@ export const ScreenSessionsView: React.FC = () => {
     >
       {/*<VStack w="100%" spacing="1vw">*/}
       <Text
-        fontWeight="500"
+        fontWeight={600}
         fontSize="2.3vw"
         lineHeight="3vw"
         position="absolute"
         textAlign="right"
         right="3vw"
         top="52vw"
-        fontWeight={600}
       >
         {/* ^ position aligned with Bottom-left 'RubyKaigi 2024' logo */}
         {state === "in_session" ? <>Ongoing Sessions</> : null}

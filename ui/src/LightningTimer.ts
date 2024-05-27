@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import { Api, LightningTimer, Track } from "./Api";
+import { LightningTimer } from "./Api";
 import { useTick } from "./TickProvider";
 
 export type LightningTimerStatus = {
