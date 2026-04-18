@@ -86,7 +86,7 @@ export const IntermissionScreenInner: React.FC = () => {
         ) : null}
         {screen.mode === "filler" ? (
           <Box w="100%" h="100%">
-            <ScreenHeroFiller />
+            <ScreenHeroFiller showSponsors={screen.show_sponsors} />
           </Box>
         ) : (
           <Box h="100%" w="100%" flexGrow={3}>
