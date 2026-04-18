@@ -1,0 +1,586 @@
+/*! tailwindcss v4.1.14 | MIT License | https://tailwindcss.com */
+@layer properties;
+@layer theme, base, components, utilities;
+@layer theme {
+  :root, :host {
+    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    --color-black: #000;
+    --color-white: #fff;
+    --spacing: 0.25rem;
+    --text-2xl: 1.5rem;
+    --text-2xl--line-height: calc(2 / 1.5);
+    --text-4xl: 2.25rem;
+    --text-4xl--line-height: calc(2.5 / 2.25);
+    --font-weight-medium: 500;
+    --default-transition-duration: 150ms;
+    --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    --default-font-family: var(--font-sans);
+    --default-mono-font-family: var(--font-mono);
+  }
+}
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
+  html, :host {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+    font-feature-settings: var(--default-font-feature-settings, normal);
+    font-variation-settings: var(--default-font-variation-settings, normal);
+    -webkit-tap-highlight-color: transparent;
+  }
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
+  abbr:where([title]) {
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  a {
+    color: inherit;
+    -webkit-text-decoration: inherit;
+    text-decoration: inherit;
+  }
+  b, strong {
+    font-weight: bolder;
+  }
+  code, kbd, samp, pre {
+    font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+    font-feature-settings: var(--default-mono-font-feature-settings, normal);
+    font-variation-settings: var(--default-mono-font-variation-settings, normal);
+    font-size: 1em;
+  }
+  small {
+    font-size: 80%;
+  }
+  sub, sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+  sub {
+    bottom: -0.25em;
+  }
+  sup {
+    top: -0.5em;
+  }
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+  :-moz-focusring {
+    outline: auto;
+  }
+  progress {
+    vertical-align: baseline;
+  }
+  summary {
+    display: list-item;
+  }
+  ol, ul, menu {
+    list-style: none;
+  }
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  button, input, select, optgroup, textarea, ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    border-radius: 0;
+    background-color: transparent;
+    opacity: 1;
+  }
+  :where(select:is([multiple], [size])) optgroup {
+    font-weight: bolder;
+  }
+  :where(select:is([multiple], [size])) optgroup option {
+    padding-inline-start: 20px;
+  }
+  ::file-selector-button {
+    margin-inline-end: 4px;
+  }
+  ::placeholder {
+    opacity: 1;
+  }
+  @supports (not (-webkit-appearance: -apple-pay-button))  or (contain-intrinsic-size: 1px) {
+    ::placeholder {
+      color: currentcolor;
+      @supports (color: color-mix(in lab, red, red)) {
+        color: color-mix(in oklab, currentcolor 50%, transparent);
+      }
+    }
+  }
+  textarea {
+    resize: vertical;
+  }
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+  ::-webkit-date-and-time-value {
+    min-height: 1lh;
+    text-align: inherit;
+  }
+  ::-webkit-datetime-edit {
+    display: inline-flex;
+  }
+  ::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+  ::-webkit-datetime-edit, ::-webkit-datetime-edit-year-field, ::-webkit-datetime-edit-month-field, ::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-hour-field, ::-webkit-datetime-edit-minute-field, ::-webkit-datetime-edit-second-field, ::-webkit-datetime-edit-millisecond-field, ::-webkit-datetime-edit-meridiem-field {
+    padding-block: 0;
+  }
+  ::-webkit-calendar-picker-indicator {
+    line-height: 1;
+  }
+  :-moz-ui-invalid {
+    box-shadow: none;
+  }
+  button, input:where([type="button"], [type="reset"], [type="submit"]), ::file-selector-button {
+    appearance: button;
+  }
+  ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+    height: auto;
+  }
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+}
+@layer utilities {
+  .invisible {
+    visibility: hidden;
+  }
+  .visible {
+    visibility: visible;
+  }
+  .absolute {
+    position: absolute;
+  }
+  .fixed {
+    position: fixed;
+  }
+  .relative {
+    position: relative;
+  }
+  .static {
+    position: static;
+  }
+  .mb-4 {
+    margin-bottom: calc(var(--spacing) * 4);
+  }
+  .block {
+    display: block;
+  }
+  .contents {
+    display: contents;
+  }
+  .flex {
+    display: flex;
+  }
+  .hidden {
+    display: none;
+  }
+  .inline {
+    display: inline;
+  }
+  .table {
+    display: table;
+  }
+  .max-w-none {
+    max-width: none;
+  }
+  .grow {
+    flex-grow: 1;
+  }
+  .transform {
+    transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  }
+  .resize {
+    resize: both;
+  }
+  .content-center {
+    align-content: center;
+  }
+  .justify-between {
+    justify-content: space-between;
+  }
+  .border-b-4 {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 4px;
+  }
+  .border-b-8 {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 8px;
+  }
+  .border-b-black {
+    border-bottom-color: var(--color-black);
+  }
+  .pt-8 {
+    padding-top: calc(var(--spacing) * 8);
+  }
+  .text-2xl {
+    font-size: var(--text-2xl);
+    line-height: var(--tw-leading, var(--text-2xl--line-height));
+  }
+  .text-4xl {
+    font-size: var(--text-4xl);
+    line-height: var(--tw-leading, var(--text-4xl--line-height));
+  }
+  .text-black {
+    color: var(--color-black);
+  }
+  .capitalize {
+    text-transform: capitalize;
+  }
+  .underline {
+    text-decoration-line: underline;
+  }
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
+  .transition {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .md\:pt-12 {
+    @media (width >= 48rem) {
+      padding-top: calc(var(--spacing) * 12);
+    }
+  }
+}
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url(/2026/fonts/Outfit-VariableFont_wght.latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url(/2026/fonts/Outfit-VariableFont_wght.latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+.l-screen {
+  width: 100vw;
+  height: 56.25vw;
+  padding: 1.666vw;
+}
+.l-inner {
+  position: relative;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--color-white);
+  padding-right: 5.208vw;
+  padding-left: 10vw;
+  border-radius: 0.625vw;
+  background-image: url("../images/official_design/home/background-image-c5cf8cae.webp");
+  font-family: "Outfit", sans-serif;
+}
+.c-screenHeading {
+  min-width: calc(var(--spacing) * 0);
+  flex: 1;
+}
+.c-screenHeading__title {
+  display: block;
+  --tw-leading: 1;
+  line-height: 1;
+  font-size: 8.541vw;
+  margin-bottom: 0.1em;
+}
+.c-screenHeading__sub {
+  display: flex;
+  align-items: center;
+  gap: 1.658vw;
+}
+.c-screenHeading__year {
+  flex-shrink: 0;
+  --tw-leading: 1;
+  line-height: 1;
+  font-size: 8.541vw;
+  --tw-tracking: -0.03em;
+  letter-spacing: -0.03em;
+}
+.c-screenHeading__location {
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  font-size: 2.18vw;
+  --tw-leading: 1.2;
+  line-height: 1.2;
+  --tw-tracking: 0.04em;
+  letter-spacing: 0.04em;
+}
+.c-animation {
+  position: relative;
+  height: 100%;
+  width: 35.67vw;
+}
+.c-logo {
+  position: absolute;
+  top: calc(1/2 * 100%);
+  left: calc(1/2 * 100%);
+  width: 100%;
+  --tw-translate-x: calc(calc(1/2 * 100%) * -1);
+  --tw-translate-y: calc(calc(1/2 * 100%) * -1);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  animation: markFade 68s linear infinite;
+  animation-delay: -2s;
+}
+.c-logo svg {
+  width: 100%;
+}
+.c-photos {
+  position: absolute;
+  top: calc(1/2 * 100%);
+  left: calc(1/2 * 100%);
+  width: 100%;
+  --tw-translate-x: calc(calc(1/2 * 100%) * -1);
+  --tw-translate-y: calc(calc(1/2 * 100%) * -1);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  overflow: hidden;
+  aspect-ratio: 840/700;
+  clip-path: url(#ruby-mask);
+}
+.c-photoItem {
+  position: absolute;
+  top: calc(var(--spacing) * 0);
+  left: calc(var(--spacing) * 0);
+  height: 100%;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0%;
+  animation: fadeSlide 68s linear infinite;
+}
+.c-photoItem:nth-child(1) {
+  background-image: url("../images/home/photo_01-d0b9071a.webp");
+}
+.c-photoItem:nth-child(2) {
+  background-image: url("../images/home/photo_02-16506c50.webp");
+}
+.c-photoItem:nth-child(3) {
+  background-image: url("../images/home/photo_03-7596ae7d.webp");
+}
+.c-photoItem:nth-child(4) {
+  background-image: url("../images/home/photo_04-3e2f0874.webp");
+}
+.c-photoItem:nth-child(5) {
+  background-image: url("../images/home/photo_05-a20f3287.webp");
+}
+.c-photoItem:nth-child(6) {
+  background-image: url("../images/home/photo_06-40d59e8e.webp");
+}
+.c-photoItem:nth-child(7) {
+  background-image: url("../images/home/photo_07-48f029fc.webp");
+}
+.c-photoItem:nth-child(8) {
+  background-image: url("../images/home/photo_08-4833889c.webp");
+}
+.c-photoItem:nth-child(9) {
+  background-image: url("../images/home/photo_09-f32ccb19.webp");
+}
+.c-photoItem:nth-child(10) {
+  background-image: url("../images/home/photo_10-daa66f63.webp");
+}
+.c-photoItem:nth-of-type(1) {
+  animation-delay: calc(8s - 2s);
+}
+.c-photoItem:nth-of-type(2) {
+  animation-delay: calc(14s - 2s);
+}
+.c-photoItem:nth-of-type(3) {
+  animation-delay: calc(20s - 2s);
+}
+.c-photoItem:nth-of-type(4) {
+  animation-delay: calc(26s - 2s);
+}
+.c-photoItem:nth-of-type(5) {
+  animation-delay: calc(32s - 2s);
+}
+.c-photoItem:nth-of-type(6) {
+  animation-delay: calc(38s - 2s);
+}
+.c-photoItem:nth-of-type(7) {
+  animation-delay: calc(44s - 2s);
+}
+.c-photoItem:nth-of-type(8) {
+  animation-delay: calc(50s - 2s);
+}
+.c-photoItem:nth-of-type(9) {
+  animation-delay: calc(56s - 2s);
+}
+.c-photoItem:nth-of-type(10) {
+  animation-delay: calc(62s - 2s);
+  animation-name: fadeSlideLastItem;
+}
+@keyframes fadeSlide {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  2.94% {
+    opacity: 1;
+  }
+  8.82% {
+    opacity: 1;
+  }
+  11.76% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  11.77% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+@keyframes fadeSlideLastItem {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  2.94% {
+    opacity: 1;
+  }
+  8.82% {
+    opacity: 1;
+  }
+  11.76% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+@keyframes markFade {
+  0% {
+    opacity: 0;
+  }
+  2.94% {
+    opacity: 1;
+  }
+  11.76% {
+    opacity: 1;
+  }
+  14.71% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-border-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+@property --tw-leading {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-tracking {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-font-weight {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-translate-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-translate-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-translate-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@layer properties {
+  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+    *, ::before, ::after, ::backdrop {
+      --tw-rotate-x: initial;
+      --tw-rotate-y: initial;
+      --tw-rotate-z: initial;
+      --tw-skew-x: initial;
+      --tw-skew-y: initial;
+      --tw-border-style: solid;
+      --tw-outline-style: solid;
+      --tw-leading: initial;
+      --tw-tracking: initial;
+      --tw-font-weight: initial;
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-translate-z: 0;
+    }
+  }
+}
