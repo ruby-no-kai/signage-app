@@ -198,10 +198,25 @@ class RefineBackend
     rescue => e
       warn e.full_message
       retries += 1
-      if retries < 2
-        sleep 2
+      if retries < 3 && retryable?(e)
+        sleep(2 ** retries)
         retry
       end
+    end
+  end
+
+  private def retryable?(e)
+    case e
+    when Aws::BedrockRuntime::Errors::ThrottlingException,
+         Aws::BedrockRuntime::Errors::ServiceUnavailableException,
+         Aws::BedrockRuntime::Errors::ModelTimeoutException,
+         Aws::BedrockRuntime::Errors::InternalServerException
+      true
+    else
+      # ruby-anthropic raises Faraday errors / generic StandardError; retry on
+      # transient-looking messages, skip obvious 4xx prompt bugs.
+      msg = e.message.to_s
+      !msg.match?(/\b(400|401|403|404|invalid_request|authentication|permission)\b/i)
     end
   end
 
@@ -214,27 +229,25 @@ end
 
 class AnthropicBackend < RefineBackend
   def initialize
-    @anthropic = Anthropic::Client.new(
-      access_token: ENV.fetch('ANTHROPIC_API_KEY'),
-      anthropic_version: '2023-06-01',
-    )
+    @anthropic = Anthropic::Client.new(api_key: ENV.fetch('ANTHROPIC_API_KEY'))
     super()
   end
 
   def process(item)
     t = Time.now
     p request: item.data
-    response = @anthropic.messages(
-      parameters: {
-        model: 'claude-3-5-haiku-20241022', # 'claude-3-7-sonnet-20250219' ,
-        system: item.data.input.system,
-        messages: item.data.input.messages,
-        max_tokens: 1000,
-        temperature: 0,
-      }
+    response = @anthropic.messages.create(
+      model: :"claude-haiku-4-5-20251001",
+      system_: [
+        { type: "text", text: item.data.input.system, cache_control: { type: "ephemeral" } },
+      ],
+      messages: item.data.input.messages,
+      max_tokens: 1000,
+      temperature: 0,
     )
-    item.data.result = response.fetch("content").dig(0, 'text')
-    p took: Time.now-t, response: item.data
+    text_block = response.content.find { |b| b.type == :text }
+    item.data.result = text_block&.text
+    p took: Time.now-t, response: item.data, usage: response.usage
     item.callback.call(item.data)
     nil
   end
@@ -247,29 +260,21 @@ class BedrockBackend < RefineBackend
   end
 
   def process(item)
-    begin
-      # TODO: Configure temperature etc
-      invocation = @bedrock.invoke_model(
-        model_id: 'anthropic.claude-3-5-sonnet-20240620-v1:0',
-        content_type: 'application/json',
-        accept: 'application/json',
-        body: JSON.generate({
-          anthropic_version: "bedrock-2023-05-31",
-          max_tokens: 1000,
-          system: itme.data.input.system,
-          messages: item.data.input.messages,
-        })
-      )
-    rescue Aws::BedrockRuntime::Errors::ServiceError => e
-      p e
-      return nil
-    end
-
-    # Block until entire response is ready
-    response_io = invocation.body
-    response = response_io.string
-
-    data.result = JSON.parse(response)["content"].first["text"]
+    t = Time.now
+    p request: item.data
+    response = @bedrock.converse(
+      model_id: 'anthropic.claude-haiku-4-5-20251001-v1:0',
+      system: [
+        { text: item.data.input.system },
+        { cache_point: { type: 'default' } },
+      ],
+      messages: item.data.input.messages.map do |m|
+        { role: m[:role], content: [{ text: m[:content] }] }
+      end,
+      inference_config: { max_tokens: 1000, temperature: 0.0 },
+    )
+    item.data.result = response.output.message.content.first.text
+    p took: Time.now-t, response: item.data
     item.callback.call(item.data)
     nil
   end
@@ -330,7 +335,7 @@ class RefineInput
   def attendee_information
     <<~EOF
       <attendee_information>
-        #{@schedule.known_speaker_names.map do |name|
+        #{@schedule.known_speaker_names.sort.map do |name|
           "<name>#{name}</name>"
         end.join(?\n)}
       </attendee_information>

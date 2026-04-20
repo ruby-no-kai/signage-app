@@ -18,4 +18,4 @@ gem 'aws-sdk-bedrock'
 gem 'aws-sdk-bedrockruntime'
 
 gem 'discordrb'
-gem 'ruby-anthropic'
+gem 'anthropic'

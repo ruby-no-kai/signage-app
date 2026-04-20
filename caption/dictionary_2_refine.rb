@@ -152,7 +152,7 @@ File.open(File.join("tmp", "refine", "#{source}#{is_dictionary}.jsonl"), "w") do
       ]
       puts messages.map { _1.fetch(:content) }.join(?\n)
       @bedrock.invoke_model_with_response_stream(
-        model_id: 'anthropic.claude-3-5-sonnet-20240620-v1:0',
+        model_id: 'anthropic.claude-haiku-4-5-20251001-v1:0',
         content_type: 'application/json',
         accept: 'application/json',
         body: JSON.generate({
