@@ -5,7 +5,7 @@ local cloudConfig = {
       primary_group: 'rk',
       uid: 3333,
       groups: 'adm,sudo,plugdev,netdev,lxd',
-      ssh_import_id: std.parseJson(std.extVar('SSH_IMPORT_IDS')),
+      ssh_authorized_keys: ['# dummy comment'],
       sudo: [
         'ALL=(ALL) NOPASSWD: ALL',
       ],
@@ -33,7 +33,14 @@ local cloudConfig = {
       'sudo',
       'bash',
       '-c',
-      ' echo "Package: src:ruby-defaults\nPin: version 1:3.3+0nkmi1~noble\nPin-Priority: 999" > /etc/apt/preferences.d/91-sorah-rbpkg-ruby-defaults',
+      ' echo "Package: src:ruby-defaults\nPin: version 1:4.0+0nkmi1~noble\nPin-Priority: 999" > /etc/apt/preferences.d/91-sorah-rbpkg-ruby-defaults',
+    ],
+    ['sudo', 'curl', '-fSsL', '-o', '/usr/local/share/keyrings/mise-archive-keyring.asc', 'https://mise.jdx.dev/gpg-key.pub'],
+    [
+      'sudo',
+      'bash',
+      '-c',
+      'echo "deb [signed-by=/usr/local/share/keyrings/mise-archive-keyring.asc] https://mise.jdx.dev/deb stable main" > /etc/apt/sources.list.d/mise.list',
     ],
   ],
   packages: [
@@ -45,10 +52,11 @@ local cloudConfig = {
     'git',
     'build-essential',
     'libyaml-dev',
-    'ruby3.3-dev',
-    'ruby3.3',
+    'ruby4.0-dev',
+    'ruby4.0',
     'ruby',
     'aws-cli',
+    'mise',
   ],
   write_files: [
     {
@@ -59,6 +67,10 @@ local cloudConfig = {
     },
   ],
   runcmd: [
+    ['curl', '-o', '/home/rk/.ssh/authorized_keys.rknet', 'https://rubykaigi.net/authorized_keys'],  // rubykaigi-net//tf/bastion/ssh_keys.tf
+    ['bash', '-c', 'cat /home/rk/.ssh/authorized_keys.rknet | tee -a /home/rk/.ssh/authorized_keys'],
+    ['rm', '/home/rk/.ssh/authorized_keys.rknet'],
+    ['ls', '-la', '/home/rk/.ssh'],
     [
       'install',
       '-D',

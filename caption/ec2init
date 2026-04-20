@@ -3,5 +3,10 @@ cd ~rk/signage-app
 export BUNDLE_JOBS=300
 export BUNDLE_FORCE_RUBY_PLATFORM=true
 
+grep -qxF 'eval "$(~/.local/bin/mise activate bash)"' ~/.bashrc || \
+  echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
+
+mise install
+
 bundle config set path ~rk/vendor/bundle
 bundle install
