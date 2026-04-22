@@ -933,8 +933,6 @@ export const Api = {
           "#updated_at": "updated_at",
         },
         ExpressionAttributeValues: {
-          ":tenant": { S: input.tenant },
-          ":id": { S: input.id },
           ":name": { S: input.name },
           ":oops_name": { NULL: true },
           ":updated_at": { N: dayjs().unix().toString() },
