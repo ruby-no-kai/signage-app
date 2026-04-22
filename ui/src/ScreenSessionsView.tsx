@@ -100,6 +100,7 @@ export const ScreenSessionsView: React.FC = () => {
         textAlign="right"
         right="3vw"
         top="52vw"
+        color={Colors.navText}
       >
         {/* ^ position aligned with Bottom-left 'RubyKaigi 2024' logo */}
         {state === "in_session" ? <>Ongoing Sessions</> : null}
