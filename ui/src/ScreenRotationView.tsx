@@ -6,6 +6,7 @@ import { ScreenVenueAnnouncementView } from "./ScreenVenueAnnouncementView";
 import { useKioskContext } from "./KioskProvider";
 import { useTick } from "./TickProvider";
 import { ScreenSessionsView } from "./ScreenSessionsView";
+import TamaribaPhotoStickerView from "./TamaribaPhotoStickerView";
 
 const ROTATE_INTERVAL = 12;
 
@@ -19,6 +20,9 @@ type Page =
     }
   | {
       kind: "sessions";
+    }
+  | {
+      kind: "photo_sticker";
     };
 
 export const ScreenRotationView: React.FC = () => {
@@ -35,6 +39,7 @@ export const ScreenRotationView: React.FC = () => {
     if (includedViews.indexOf("hero") >= 0) retval.push({ kind: "hero" });
     if (includedViews.indexOf("sessions") >= 0)
       retval.push({ kind: "sessions" });
+    if (screen?.show_photo_sticker) retval.push({ kind: "photo_sticker" });
     if (
       venueAnnouncements &&
       includedViews.indexOf("venue_announcements") >= 0
@@ -92,6 +97,7 @@ export const ScreenRotationView: React.FC = () => {
         <ScreenVenueAnnouncementView ann={page.ann} />
       ) : null}
       {page.kind === "sessions" ? <ScreenSessionsView /> : null}
+      {page.kind === "photo_sticker" ? <TamaribaPhotoStickerView /> : null}
     </>
   );
 };

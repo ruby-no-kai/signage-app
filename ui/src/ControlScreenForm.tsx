@@ -55,6 +55,7 @@ type FormData = {
   show_sessions: boolean;
 
   show_sponsors: boolean;
+  show_photo_sticker: boolean;
 
   main_caption: CaptionSource;
 
@@ -87,6 +88,7 @@ function serverDataToFormData(input: ScreenControl): FormData {
     show_sessions: input.rotated_views.indexOf("sessions") >= 0,
 
     show_sponsors: input.show_sponsors,
+    show_photo_sticker: input.show_photo_sticker ?? false,
 
     main_caption: input.main_caption ?? "refiner",
 
@@ -118,6 +120,7 @@ function formDataToInput(
     mode: form.mode,
     rotated_views,
     show_sponsors: form.show_sponsors,
+    show_photo_sticker: form.show_photo_sticker,
     intermission: form.intermission,
     main_caption: form.main_caption,
     subscreen_layout: form.subscreen_layout,
@@ -205,6 +208,10 @@ export const ControlScreenForm: React.FC<{
                   <FormControl>
                     <FormLabel>Show venue announcements</FormLabel>
                     <Checkbox {...register("show_venue_announcements")} />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Show photo sticker view</FormLabel>
+                    <Checkbox {...register("show_photo_sticker")} />
                   </FormControl>
                 </TabPanel>
 

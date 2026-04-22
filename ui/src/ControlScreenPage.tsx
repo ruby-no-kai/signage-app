@@ -129,6 +129,13 @@ const ScreenControlView: React.FC<{ screen: ScreenControl | undefined }> = ({
           </Tag>
         </Text>
       ) : null}
+      {screen.show_photo_sticker ? (
+        <Text>
+          <Tag variant="solid" colorScheme="blue">
+            Photo Sticker View
+          </Tag>
+        </Text>
+      ) : null}
       {/* screen.lightning_timer ? (
         <Text>
           <Tag variant="solid" colorScheme="teal">

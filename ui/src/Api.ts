@@ -123,6 +123,7 @@ export type ScreenControlFull = {
   rotated_views: ScreenViewKind[];
 
   show_sponsors: boolean;
+  show_photo_sticker?: boolean;
   intermission: boolean;
   lightning_timer?: LightningTimer;
 
@@ -160,6 +161,7 @@ function dynamodbScreenControl(
     ) ?? ["hero", "venue_announcements", "sessions"],
 
     show_sponsors: possibleItem?.show_sponsors?.BOOL ?? true,
+    show_photo_sticker: possibleItem?.show_photo_sticker?.BOOL ?? false,
     intermission: possibleItem?.intermission?.BOOL ?? false,
 
     message: ((map) =>
@@ -663,12 +665,13 @@ export const Api = {
         TableName: aws.config.dynamodb_table_name,
         Key: { pk: { S: pk }, sk: { S: sk } },
         UpdateExpression:
-          "set #track = :track, #mode = :mode, #rotated_views = :rotated_views, #show_sponsors = :show_sponsors, #intermission = :intermission, #message = :message, #lightning_timer = :lightning_timer, #main_caption = :main_caption, #subscreen_caption = :subscreen_caption, #subscreen_caption_hide_partial = :subscreen_caption_hide_partial, #subscreen_layout = :subscreen_layout, #updated_at = :updated_at",
+          "set #track = :track, #mode = :mode, #rotated_views = :rotated_views, #show_sponsors = :show_sponsors, #show_photo_sticker = :show_photo_sticker, #intermission = :intermission, #message = :message, #lightning_timer = :lightning_timer, #main_caption = :main_caption, #subscreen_caption = :subscreen_caption, #subscreen_caption_hide_partial = :subscreen_caption_hide_partial, #subscreen_layout = :subscreen_layout, #updated_at = :updated_at",
         ExpressionAttributeNames: {
           "#track": "track",
           "#mode": "mode",
           "#rotated_views": "rotated_views",
           "#show_sponsors": "show_sponsors",
+          "#show_photo_sticker": "show_photo_sticker",
           "#intermission": "intermission",
           "#message": "message",
           "#lightning_timer": "lightning_timer",
@@ -687,6 +690,7 @@ export const Api = {
             })),
           },
           ":show_sponsors": { BOOL: value.show_sponsors },
+          ":show_photo_sticker": { BOOL: !!value.show_photo_sticker },
           ":intermission": { BOOL: value.intermission },
           ":message": value.message
             ? {
