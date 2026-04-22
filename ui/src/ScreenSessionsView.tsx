@@ -33,9 +33,11 @@ type ConferenceStateAssumption =
   | "mixed"
   | "end_of_day";
 
-export const ScreenSessionsView: React.FC = () => {
+export const ScreenSessionsView: React.FC<{ keynoteOnly?: boolean }> = ({
+  keynoteOnly = false,
+}) => {
   const tick = useTick();
-  const recentSessions = useRecentSessions();
+  const recentSessions = useRecentSessions(keynoteOnly);
 
   let earliestStartUnix = undefined;
   if (recentSessions) {
@@ -115,7 +117,7 @@ export const ScreenSessionsView: React.FC = () => {
   );
 };
 
-function useRecentSessions() {
+function useRecentSessions(keynoteOnly: boolean = false) {
   const apictx = useApiContext(false);
   const tick = useTick();
   const { data: conferenceSessions } = Api.useConferenceSessions(apictx);
@@ -123,8 +125,12 @@ function useRecentSessions() {
   if (!conferenceSessions) return undefined;
   if (!apictx) return undefined;
 
+  const tracks = keynoteOnly
+    ? apictx.config.tracks.filter((t) => t === "a")
+    : apictx.config.tracks;
+
   const retval = new Map(
-    apictx.config.tracks.map((track) => {
+    tracks.map((track) => {
       const trackSessions = conferenceSessions.tracks.get(track) ?? [];
       const firstUnfinishedSession = trackSessions.find(
         (s) => tick.unix() <= s.ends_at
