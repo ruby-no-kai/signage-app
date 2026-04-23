@@ -96,7 +96,9 @@ export const ScreenRotationView: React.FC = () => {
       {page.kind === "venue_announcements" ? (
         <ScreenVenueAnnouncementView ann={page.ann} />
       ) : null}
-      {page.kind === "sessions" ? <ScreenSessionsView /> : null}
+      {page.kind === "sessions" ? (
+        <ScreenSessionsView keynoteOnly={screen?.keynote_only ?? false} />
+      ) : null}
       {page.kind === "photo_sticker" ? <TamaribaPhotoStickerView /> : null}
     </>
   );

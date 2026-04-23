@@ -56,6 +56,7 @@ type FormData = {
 
   show_sponsors: boolean;
   show_photo_sticker: boolean;
+  keynote_only: boolean;
 
   main_caption: CaptionSource;
 
@@ -89,6 +90,7 @@ function serverDataToFormData(input: ScreenControl): FormData {
 
     show_sponsors: input.show_sponsors,
     show_photo_sticker: input.show_photo_sticker ?? false,
+    keynote_only: input.keynote_only ?? false,
 
     main_caption: input.main_caption ?? "refiner",
 
@@ -121,6 +123,7 @@ function formDataToInput(
     rotated_views,
     show_sponsors: form.show_sponsors,
     show_photo_sticker: form.show_photo_sticker,
+    keynote_only: form.keynote_only,
     intermission: form.intermission,
     main_caption: form.main_caption,
     subscreen_layout: form.subscreen_layout,
@@ -204,6 +207,10 @@ export const ControlScreenForm: React.FC<{
                   <FormControl>
                     <FormLabel>Show sessions</FormLabel>
                     <Checkbox {...register("show_sessions")} />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Keynote-only (hide tracks B/C)</FormLabel>
+                    <Checkbox {...register("keynote_only")} />
                   </FormControl>
                   <FormControl>
                     <FormLabel>Show venue announcements</FormLabel>
