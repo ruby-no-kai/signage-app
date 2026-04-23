@@ -58,9 +58,10 @@ export const ControlKiosksPage: React.FC = () => {
   return (
     <Box mx="50px">
       {error ? <ErrorAlert error={error} /> : null}
-      <Box>
+      <Flex justifyContent="space-between" alignItems="center">
         <Heading>Kiosks</Heading>
-      </Box>
+        <KiosksReloadAll kiosks={data} />
+      </Flex>
       <Box>
         {data.map((kiosk) => (
           <ControlKioskView key={kiosk.id} kiosk={kiosk} />
@@ -112,6 +113,62 @@ export const ControlKioskView: React.FC<{
         {dayjs.unix(kiosk.last_boot_at).format()}
       </Text>
     </Box>
+  );
+};
+
+const KiosksReloadAll: React.FC<{
+  kiosks: Kiosk[];
+}> = ({ kiosks }) => {
+  const aws = useApiContext(true);
+  const [isRequesting, setIsRequesting] = useState(false);
+  const toast = useToast();
+  const perform = async () => {
+    if (!aws) return;
+    if (isRequesting) return;
+    setIsRequesting(true);
+    try {
+      await Promise.all(
+        kiosks.map((k) => Api.reloadKiosk(aws, { id: k.id }))
+      );
+      toast({
+        title: `Reload Command sent to ${kiosks.length} kiosks`,
+        description: "",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast(errorToToast(e));
+    }
+    setIsRequesting(false);
+  };
+  return (
+    <Popover closeOnBlur>
+      <PopoverTrigger>
+        <Button
+          colorScheme="red"
+          isDisabled={!aws || kiosks.length === 0}
+        >
+          Reload All
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverHeader>Reload all kiosks?</PopoverHeader>
+        <PopoverBody>
+          <Button
+            colorScheme="red"
+            size="sm"
+            onClick={perform}
+            isLoading={isRequesting}
+            isDisabled={!aws || kiosks.length === 0}
+          >
+            Reload
+          </Button>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
   );
 };
 
