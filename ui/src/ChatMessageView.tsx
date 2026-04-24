@@ -132,6 +132,11 @@ const ChatAuthorName: React.FC<{ author: ChatSender; fg: string }> = ({
   );
 };
 
+const JAPANESE_PATTERN = /\p{Script=Hiragana}|\p{Script=Katakana}|\p{Script=Han}/u;
+
 const ChatMessageText: React.FC<{ content: string }> = ({ content }) => {
+  if (JAPANESE_PATTERN.test(content)) {
+    return <span lang="ja">{content}</span>;
+  }
   return <span>{content}</span>;
 };
